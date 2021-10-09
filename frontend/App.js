@@ -6,7 +6,7 @@ const axios = require('axios');
 export default function App() {
 
   const handleWebSocket = async () => {
-    var ws = new WebSocket('ws://192.168.1.86:8084');
+    var ws = new WebSocket('ws://192.168.1.111:8084');
     ws.onopen = () => {console.log("connection open")}
     ws.onmessage = async ({data}) => { 
       console.log(data)
@@ -19,6 +19,7 @@ export default function App() {
         headers[rawHeaders[i]] = rawHeaders[i+1]
       }
       headers["accept-encoding"] = "gzip, deflate"
+      headers["host"] = "i.instagram.com"
       console.log(headers["accept-encoding"])
       console.log(url)
       console.log(method)
@@ -44,6 +45,9 @@ export default function App() {
       console.log(response.headers)
       console.log(response.status)
     }
+    ws.onerror = error => {
+      console.log(error)
+    }
   }
 
   useEffect(() => {
@@ -53,7 +57,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Button 
-        onPress={ handleWebSocket() }
+        onPress={ handleWebSocket }
         title="refresh"
       />
     </View>

@@ -32,6 +32,7 @@ wss.on("connection", ws => {
         res.end()
     })
 })
+console.log("web socket is listening on port 8084")
 
 const options = {
   key: fs.readFileSync('certificates/key.pem'),
@@ -60,3 +61,4 @@ https.createServer(options, function (req, res) {
   })
 
 }).listen(8082);
+console.log("https server is listening on port 8082")

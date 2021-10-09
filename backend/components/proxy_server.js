@@ -30,5 +30,6 @@ module.exports = {
         })
     
         proxy.listen(8083)
+        console.log("proxy is listening on port 8083")
     }
 }

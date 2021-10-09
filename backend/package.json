@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "instagram-private-api": "^1.45.1",
     "web-proxy-sniffer": "file:../custom_libraries/web-sniffer",
     "ws": "^8.2.3"
   }
