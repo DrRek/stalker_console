@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "web-proxy-sniffer": "file:../custom_libraries/web-sniffer"
+    "web-proxy-sniffer": "file:../custom_libraries/web-sniffer",
+    "ws": "^8.2.3"
   }
 }
