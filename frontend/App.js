@@ -1,112 +1,70 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import React, { useRef, useState, useEffect } from "react";
+import { AppState, StyleSheet, Text, View, Button } from "react-native";
 
-import React from 'react';
-import type {Node} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const axios = require('axios');
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+export default function App() {
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
+  const handleWebSocket = async () => {
+    var ws = new WebSocket('ws://192.168.1.86:8084');
+    ws.onopen = () => {console.log("connection open")}
+    ws.onmessage = async ({data}) => { 
+      console.log(data)
+      console.log(-2)
+      const { method, url, rawHeaders, data:postData, id } = JSON.parse(data)
+
+      console.log(rawHeaders.length)
+      const headers = {}
+      for (let i = 0; i < rawHeaders.length-1; i+=2){
+        headers[rawHeaders[i]] = rawHeaders[i+1]
+      }
+      headers["accept-encoding"] = "gzip, deflate"
+      console.log(headers["accept-encoding"])
+      console.log(url)
+      console.log(method)
+      console.log(headers)
+      const response = await axios.request({
+        method: method,
+        url: "https://i.instagram.com"+url,
+        data: postData,
+        headers: headers,
+        decompress: false
+      });
+      console.log(2)
+      console.log(response.data)
+
+      ws.send(JSON.stringify({
+        "id": id,
+        "data": response.data,
+        "headers": response.headers,
+        "status": response.status
+      }))
+
+      console.log(response.data)
+      console.log(response.headers)
+      console.log(response.status)
+    }
+  }
+
+  useEffect(() => {
+    handleWebSocket()
+  }, [])
+
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+    <View style={styles.container}>
+      <Button 
+        onPress={ handleWebSocket() }
+        title="refresh"
+      />
     </View>
   );
 };
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
-
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
-
-export default App;
