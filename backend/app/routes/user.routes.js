@@ -10,6 +10,10 @@ module.exports = function(app) {
     next();
   });
 
+  app.get("/api/platform/all", controller.get_platforms)
+
+  app.get("/api/platform_account/add", [authJwt.verifyToken], controller.add_platform_account)
+
   app.get("/api/test/all", controller.allAccess);
 
   app.get("/api/test/user", [authJwt.verifyToken], controller.userBoard);

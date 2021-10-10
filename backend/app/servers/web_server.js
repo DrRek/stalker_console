@@ -6,6 +6,7 @@ app.use(bodyParser.json());
 
 const db = require("../models");
 const Role = db.role;
+const Platform = db.platform
 
 const dbConfig = require("../config/db.config")
 
@@ -68,6 +69,30 @@ function initial() {
         }
 
         console.log("added 'admin' to roles collection");
+      });
+    }
+  });
+
+  Platform.estimatedDocumentCount((err, count) => {
+    if (!err && count === 0) {
+      new Platform({
+        name: "tiktok"
+      }).save(err => {
+        if (err) {
+          console.log("error", err);
+        }
+
+        console.log("added 'tiktok' to platforms collection");
+      });
+
+      new Platform({
+        name: "instagram"
+      }).save(err => {
+        if (err) {
+          console.log("error", err);
+        }
+
+        console.log("added 'instagram' to platforms collection");
       });
     }
   });

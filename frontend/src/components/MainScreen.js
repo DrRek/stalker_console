@@ -1,11 +1,16 @@
 import React, { useRef, useState, useEffect } from "react";
 import { AppState, StyleSheet, Text, View, Button } from "react-native";
 
-export default function Main() {
-
+export default function Main({navigation}) {
   return (
     <View style={styles.container}>
       <Text>Main</Text>
+      <Button 
+        title="+"
+        onPress={() => {
+          navigation.navigate("NewPlatformAccount")
+        }}
+      />
     </View>
   );
 };

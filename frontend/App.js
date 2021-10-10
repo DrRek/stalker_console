@@ -6,12 +6,23 @@ import LoginScreen from './src/components/LoginScreen'
 import RegisterScreen from './src/components/RegisterScreen'
 import MainScreen from './src/components/MainScreen'
 import UserInfoScreen from './src/components/UserInfoScreen'
+import NewPlatformAccountScreen from './src/components/NewPlatformAccountScreen'
 import deviceStorage from './src/services/storage.service'
 import AuthContext from './src/contexts/AuthContext'
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 const axios = require("axios")
 
-const Stack = createBottomTabNavigator();
+const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
+function HomeStack() {
+  return (
+    <Stack.Navigator>      
+      <Tab.Screen name="Main" component={MainScreen} />      
+      <Tab.Screen name="NewPlatformAccount" component={NewPlatformAccountScreen} />    
+    </Stack.Navigator>);
+}
 
 export default function App() {
   const [state, dispatch] = React.useReducer(
@@ -60,8 +71,8 @@ export default function App() {
     bootstrapAsync();
   }, []);
 
-  const authContext = React.useMemo(    
-    () => ({      
+  const authContext = React.useMemo(
+    () => ({
       signIn: async (username, password) => {
         // In a production app, we need to send some data (usually username, password) to server and get a token
         // We will also need to handle errors if sign in failed        
@@ -70,8 +81,8 @@ export default function App() {
         try {
           const response = await axios({
             method: 'post',
-            url: "http://192.168.1.112:8090/api/auth/signin",
-            headers: {}, 
+            url: "http://192.168.43.111:8090/api/auth/signin",
+            headers: {},
             data: {
               username,
               password,
@@ -81,13 +92,13 @@ export default function App() {
           dispatch({ type: 'SIGN_IN', user: response.data });
 
           console.log(response.data)
-        } catch (e){
+        } catch (e) {
           console.log("Error while logging in")
           console.log(e)
         }
-      },     
-      signOut: () => dispatch({ type: 'SIGN_OUT' }),      
-      signUp: async (username, email, password) => {        
+      },
+      signOut: () => dispatch({ type: 'SIGN_OUT' }),
+      signUp: async (username, email, password) => {
         // In a production app, we need to send user data to server and get a token        
         // We will also need to handle errors if sign up failed        
         // After getting token, we need to persist the token using `SecureStore`        
@@ -101,39 +112,39 @@ export default function App() {
           console.log(newUserRequest)
           const response = await axios({
             method: 'post',
-            url: "http://192.168.1.112:8090/api/auth/signup",
-            headers: {}, 
+            url: "http://192.168.43.111:8090/api/auth/signup",
+            headers: {},
             data: newUserRequest
           });
           console.log(response.data)
-          
+
         } catch (e) {
           console.log("Error while registering")
           console.log(e)
         }
         //deviceStorage.saveItem("user", JSON.stringify({"name": "luca"}))
         //dispatch({ type: 'SIGN_IN', user: {"name": "luca"} });      
-      },    
-    }),    
-    []  
+      },
+    }),
+    []
   );
 
   return (
     <AuthContext.Provider value={authContext}>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Tab.Navigator>
           {
             state.user ?
               <>
-                <Stack.Screen name="Main" component={MainScreen} />
-                <Stack.Screen name="Account" component={UserInfoScreen} />
+                <Tab.Screen name="Home" component={HomeStack} />
+                <Tab.Screen name="Account" component={UserInfoScreen} />
               </> :
               <>
-                <Stack.Screen name="Login" component={LoginScreen} />
-                <Stack.Screen name="Register" component={RegisterScreen} />
+                <Tab.Screen name="Login" component={LoginScreen} />
+                <Tab.Screen name="Register" component={RegisterScreen} />
               </>
           }
-        </Stack.Navigator>
+        </Tab.Navigator>
       </NavigationContainer>
     </AuthContext.Provider>
   );
