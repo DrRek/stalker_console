@@ -12,7 +12,7 @@ module.exports = function(app) {
 
   app.get("/api/platform/all", controller.get_platforms)
 
-  app.get("/api/platform_account/add", [authJwt.verifyToken], controller.add_platform_account)
+  app.post("/api/platform_account/add", [authJwt.verifyToken], controller.add_platform_account)
 
   app.get("/api/test/all", controller.allAccess);
 

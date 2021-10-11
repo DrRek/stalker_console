@@ -26,22 +26,17 @@ exports.get_platforms = async (req, res) => {
 }
 
 exports.add_platform_account = (req, res) => {
-    console.log("Adding platform account")
-    console.log(`${req.userId} ${req.platformId}${req.password}${req.username}`)
-    userId = req.userId
-    platformId = req.platformId
     new PlatformAccount({
-        username: req.username,
-        encrypted_password: req.password,
+        username: req.body.username,
+        encrypted_password: req.body.password,
         owner: req.userId,
-        platform: req.platformId
+        platform: req.body.platformId,
     }).save(err => {
         if (err) {
             console.log("Error while adding platform account")
             console.log("error", err);
             res.status(200).send({ok: false, message: "Error while adding a platform account"})
         }
-
         console.log("Platform account added successfully")
         res.status(200).send({ok: true, message: "Platform account added successfully"})
     });
