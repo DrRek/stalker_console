@@ -1,20 +1,32 @@
+import 'react-native-gesture-handler';
 import React, {useRef, useState, useEffect} from 'react';
-import {AppState, StyleSheet, Text, View, Button} from 'react-native';
+import {
+  AppState,
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  ScrollView,
+} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import LoginScreen from './src/components/LoginScreen';
 import RegisterScreen from './src/components/RegisterScreen';
 import MainScreen from './src/components/MainScreen';
 import UserInfoScreen from './src/components/UserInfoScreen';
-import NewPlatformAccountScreen from './src/components/NewPlatformAccountScreen';
+import PlatformAccountAddScreen from './src/components/PlatformAccountAddScreen';
+import PlatformAccountJobsScreen from './src/components/PlatformAccountJobsScreen';
+import PlatformAccountActivityScreen from './src/components/PlatformAccountActivityScreen';
 import deviceStorage from './src/services/storage.service';
 import ApiContext from './src/contexts/ApiContext';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 
 const axios = require('axios');
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
 
 const HOSTNAME = 'http://192.168.1.86:8090';
 
@@ -26,18 +38,6 @@ const get_auth_headers = async () => {
     return {};
   }
 };
-
-function HomeStack() {
-  return (
-    <Stack.Navigator>
-      <Tab.Screen name="Main" component={MainScreen} />
-      <Tab.Screen
-        name="NewPlatformAccount"
-        component={NewPlatformAccountScreen}
-      />
-    </Stack.Navigator>
-  );
-}
 
 export default function App() {
   const [state, dispatch] = React.useReducer(
@@ -190,21 +190,47 @@ export default function App() {
   return (
     <ApiContext.Provider value={apiContext}>
       <NavigationContainer>
-        <Tab.Navigator>
-          {state.user ? (
-            <>
-              <Tab.Screen name="Home" component={HomeStack} />
-              <Tab.Screen name="Account" component={UserInfoScreen} />
-            </>
-          ) : (
-            <>
-              <Tab.Screen name="Login" component={LoginScreen} />
-              <Tab.Screen name="Register" component={RegisterScreen} />
-            </>
-          )}
-        </Tab.Navigator>
+        {!state.user ? (
+          <Tab.Navigator>
+            <Tab.Screen name="Login" component={LoginScreen} />
+            <Tab.Screen name="Register" component={RegisterScreen} />
+          </Tab.Navigator>
+        ) : (
+          <Drawer.Navigator>
+            <Drawer.Screen name="HomeStack" component={HomeStack} />
+            <Drawer.Screen name="Account" component={UserInfoScreen} />
+          </Drawer.Navigator>
+        )}
       </NavigationContainer>
     </ApiContext.Provider>
+  );
+}
+
+function PlatformAccountTab() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="PlatformAccountJobs"
+        component={PlatformAccountJobsScreen}
+      />
+      <Tab.Screen
+        name="PlatformAccountActivy"
+        component={PlatformAccountActivityScreen}
+      />
+    </Tab.Navigator>
+  );
+}
+
+function HomeStack() {
+  return (
+    <Stack.Navigator>
+      <Tab.Screen name="Main" component={MainScreen} />
+      <Tab.Screen
+        name="NewPlatformAccount"
+        component={PlatformAccountAddScreen}
+      />
+      <Tab.Screen name="PlatformAccountTab" component={PlatformAccountTab} />
+    </Stack.Navigator>
   );
 }
 

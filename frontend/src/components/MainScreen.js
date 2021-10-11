@@ -28,12 +28,18 @@ export default function Main({navigation}) {
         data={platformAccounts}
         keyExtractor={(item) => item._id}
         renderItem={({item:{_id, platform, username}}) => 
-          <ListItem key={_id} bottomDivider>        
-            <Avatar source={require('../../resources/img/instagram-round.png')} />        
-            <ListItem.Content>          
-              <ListItem.Title>{username}</ListItem.Title>          
-              <ListItem.Subtitle>{platform.name}</ListItem.Subtitle>        
-            </ListItem.Content>
+          <ListItem 
+            key={_id}
+            bottomDivider
+            onPress={() => {
+              navigation.navigate("PlatformAccountTab", {platformAccountId: _id})
+            }}
+          >        
+              <Avatar source={require('../../resources/img/instagram-round.png')} />        
+              <ListItem.Content>          
+                <ListItem.Title>{username}</ListItem.Title>          
+                <ListItem.Subtitle>{platform.name}</ListItem.Subtitle>        
+              </ListItem.Content>
           </ListItem>
         }
         numColumns={1}
