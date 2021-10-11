@@ -41,3 +41,7 @@ exports.add_platform_account = (req, res) => {
         res.status(200).send({ok: true, message: "Platform account added successfully"})
     });
 }
+
+exports.get_platform_account = async (req, res) => {
+    res.status(200).send(await PlatformAccount.find({owner: req.userId}))
+}

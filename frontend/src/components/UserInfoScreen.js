@@ -1,9 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import { AppState, StyleSheet, Text, View, Button } from "react-native";
-import AuthContext from '../contexts/AuthContext'
+import ApiContext from '../contexts/ApiContext'
 
 export default function UserInfo({navigation}) {
-  const { signOut } = React.useContext(AuthContext);
+  const { signOut } = React.useContext(ApiContext);
 
   return (
     <View style={styles.container}>

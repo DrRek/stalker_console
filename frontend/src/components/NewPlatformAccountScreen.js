@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
 import { AppState, StyleSheet, Text, View, Button, TextInput } from "react-native";
-import api from '../services/api.service'
 import { Picker } from '@react-native-picker/picker'
 
 export default function NewPlatformAccountScreen({navigation}) {
@@ -8,6 +7,7 @@ export default function NewPlatformAccountScreen({navigation}) {
   const [platformId, setPlatformId] = React.useState(null)
   const [username, setUsername] = React.useState("")
   const [password, setPassword] = React.useState("")
+  const api = React.useContext(ApiContext);
 
   useEffect(() => {
     async function fetchPlatforms() {

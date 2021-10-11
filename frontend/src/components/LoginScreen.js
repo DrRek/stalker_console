@@ -1,11 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import { AppState, StyleSheet, Text, View, Button, TextInput } from "react-native";
-import AuthContext from '../contexts/AuthContext'
+import ApiContext from "../contexts/ApiContext";
 
 export default function LoginScreen() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const { signIn } = React.useContext(AuthContext);
+  const { signIn } = React.useContext(ApiContext);
   return (   
     <View style={styles.container}>
       <Text>Home Screen</Text>

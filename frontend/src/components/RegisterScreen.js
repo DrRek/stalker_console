@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
 import { AppState, StyleSheet, Text, View, Button, TextInput } from "react-native";
+import ApiContext from "../contexts/ApiContext";
 
 export default function Register() {
   const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const { signUp, signIn } = React.useContext(AuthContext);
+  const { signUp, signIn } = React.useContext(ApiContext);
   return (
     <View style={styles.container}>
       <TextInput

@@ -1,5 +1,5 @@
-const axios = require("axios")
-const deviceStorage = require("./storage.service")
+/*const axios = require("axios")
+import deviceStorage from './src/services/storage.service'
 
 const HOSTNAME = "http://192.168.1.86:8090"
 
@@ -44,4 +44,4 @@ const api = {
     }
 }
 
-export default api;
+export default api;*/
