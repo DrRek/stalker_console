@@ -81,7 +81,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'post',
-            url: "http://192.168.43.111:8090/api/auth/signin",
+            url: "http://192.168.1.86:8090/api/auth/signin",
             headers: {},
             data: {
               username,
@@ -97,7 +97,10 @@ export default function App() {
           console.log(e)
         }
       },
-      signOut: () => dispatch({ type: 'SIGN_OUT' }),
+      signOut: () => {
+        deviceStorage.removeItem("user")
+        dispatch({ type: 'SIGN_OUT' })
+      },
       signUp: async (username, email, password) => {
         // In a production app, we need to send user data to server and get a token        
         // We will also need to handle errors if sign up failed        
@@ -112,7 +115,7 @@ export default function App() {
           console.log(newUserRequest)
           const response = await axios({
             method: 'post',
-            url: "http://192.168.43.111:8090/api/auth/signup",
+            url: "http://192.168.1.86:8090/api/auth/signup",
             headers: {},
             data: newUserRequest
           });

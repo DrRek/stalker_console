@@ -1,7 +1,7 @@
 const axios = require("axios")
 const deviceStorage = require("./storage.service")
 
-const HOSTNAME = "http://192.168.43.111:8090"
+const HOSTNAME = "http://192.168.1.86:8090"
 
 const get_auth_headers = async () => {
     const user = JSON.parse(await deviceStorage.getItem('user'))
