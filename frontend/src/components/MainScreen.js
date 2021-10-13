@@ -50,6 +50,13 @@ export default function Main({navigation}) {
           />
         }
       />
+      <Button
+        title="test"
+        onPress={api.test}
+        buttonStyle={{
+          margin: 20
+        }}
+      />
       <Button  
         icon={    
           <Icon     

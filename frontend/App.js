@@ -111,6 +111,7 @@ export default function App() {
         } catch (e) {
           console.log('Error while logging in');
           console.log(e);
+          console.log(e.response)
         }
       },
       signOut: () => {
@@ -183,6 +184,18 @@ export default function App() {
           console.log(e);
         }
       },
+      test: async () => {
+        try {
+          const response = await axios({
+            method: 'get',
+            url: `${HOSTNAME}/api/test`,
+            headers: await get_auth_headers(),
+          });
+          return response.data;
+        } catch (e) {
+          console.log(e);
+        }
+      }
     }),
     [],
   );

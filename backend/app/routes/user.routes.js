@@ -16,6 +16,8 @@ module.exports = function(app) {
 
   app.get("/api/platform_account/all", [authJwt.verifyToken], controller.get_platform_account)
 
+  app.get("/api/test", [authJwt.verifyToken], controller.test);
+
   app.get("/api/test/all", controller.allAccess);
 
   app.get("/api/test/user", [authJwt.verifyToken], controller.userBoard);

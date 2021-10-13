@@ -4,6 +4,7 @@ const { IgApiClient } = require('instagram-private-api');
     const ig = new IgApiClient();
     ig.state.generateDevice("sharepizza");
     ig.state.proxyUrl = "http://127.0.0.1:8083/";
+    ig.state.user_id_mongo = "test"
     const auth = await ig.account.login("sharepizza", "lamia1a");
     console.log(auth.full_name)
     console.log(auth.pk)
