@@ -17,6 +17,7 @@ import UserInfoScreen from './src/components/UserInfoScreen';
 import PlatformAccountAddScreen from './src/components/PlatformAccountAddScreen';
 import PlatformAccountJobsScreen from './src/components/PlatformAccountJobsScreen';
 import PlatformAccountActivityScreen from './src/components/PlatformAccountActivityScreen';
+import JobAddScreen from './src/components/JobAddScreen';
 import deviceStorage from './src/services/storage.service';
 import ApiContext from './src/contexts/ApiContext';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -184,6 +185,9 @@ export default function App() {
           console.log(e);
         }
       },
+      getJob: async (platformAccountId) => {
+        return []
+      },
       test: async () => {
         try {
           const response = await axios({
@@ -219,12 +223,14 @@ export default function App() {
   );
 }
 
-function PlatformAccountTab() {
+function PlatformAccountTab({route, navigation}) {
+  const { platformAccountId } = route.params
   return (
     <Tab.Navigator>
       <Tab.Screen
         name="PlatformAccountJobs"
-        component={PlatformAccountJobsScreen}
+        children={() => <PlatformAccountJobsScreen platformAccountId={platformAccountId} navigation={navigation}/>}
+        //component={PlatformAccountJobsScreen}
       />
       <Tab.Screen
         name="PlatformAccountActivy"
@@ -237,12 +243,16 @@ function PlatformAccountTab() {
 function HomeStack() {
   return (
     <Stack.Navigator>
-      <Tab.Screen name="Main" component={MainScreen} />
-      <Tab.Screen
+      <Stack.Screen name="Main" component={MainScreen} />
+      <Stack.Screen
         name="NewPlatformAccount"
         component={PlatformAccountAddScreen}
       />
-      <Tab.Screen name="PlatformAccountTab" component={PlatformAccountTab} />
+      <Stack.Screen
+        name="NewJob"
+        component={JobAddScreen}
+      />
+      <Stack.Screen name="PlatformAccountTab" component={PlatformAccountTab} />
     </Stack.Navigator>
   );
 }

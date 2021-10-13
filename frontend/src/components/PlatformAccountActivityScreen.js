@@ -3,6 +3,7 @@ import { AppState, StyleSheet, Text, View, Button } from "react-native";
 import ApiContext from '../contexts/ApiContext'
 
 export default function PlatformAccountActivityScreen({navigation, route}) {
+  console.log(route)
   const { platformAccountId } = route
 
   return (

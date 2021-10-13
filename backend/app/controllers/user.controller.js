@@ -43,11 +43,26 @@ exports.add_platform_account = (req, res) => {
     });
 }
 
+exports.monitor_followers = async (req, res) => {
+    const ig = new IgApiClient();
+    ig.state.generateDevice("sharepizza");
+    //ig.state.proxyUrl = "http://127.0.0.1:8083/";
+    //ig.state.user_id_mongo = req.userId
+    const auth = await ig.account.login("sharepizza", "lamia1a");
+    console.log(auth.full_name)
+    console.log(auth.pk)
+    //const followersFeed = ig.feed.accountFollowers(auth.pk);
+    const followersFeed2 = ig.feed.accountFollowing(auth.pk);
+    const wholeResponse2 = await followersFeed2.request();
+    console.log(wholeResponse2.users.length);
+    res.status(200).send({ok: true, message: "Test completed succesfully"})
+}
+
 exports.test = async (req, res) => {
     const ig = new IgApiClient();
     ig.state.generateDevice("sharepizza");
-    ig.state.proxyUrl = "http://127.0.0.1:8083/";
-    ig.state.user_id_mongo = req.userId
+    //ig.state.proxyUrl = "http://127.0.0.1:8083/";
+    //ig.state.user_id_mongo = req.userId
     const auth = await ig.account.login("sharepizza", "lamia1a");
     console.log(auth.full_name)
     console.log(auth.pk)
