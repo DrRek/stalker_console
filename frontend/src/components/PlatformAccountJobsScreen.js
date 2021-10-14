@@ -32,7 +32,7 @@ export default function PlatformAccountJobsScreen({platformAccountId, navigation
             key={_id}
             bottomDivider
             onPress={() => {
-              navigation.navigate("PlatformAccountTab", {platformAccountId: _id})
+              api.runJob(platformAccountId, _id)
             }}
           >        
               <Avatar source={require('../../resources/img/instagram-round.png')} />        

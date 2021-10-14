@@ -231,6 +231,22 @@ export default function App() {
           console.log(e);
         }
       },
+      runJob: async (platformAccountId, jobId) => {
+        try {
+          const response = await axios({
+            method: 'get',
+            url: `${HOSTNAME}/api/job/run`,
+            headers: await get_auth_headers(),
+            params: {
+              platformAccountId,
+              jobId
+            }
+          });
+          return response.data;
+        } catch (e) {
+          console.log(e);
+        }
+      },
       test: async () => {
         try {
           const response = await axios({
