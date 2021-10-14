@@ -12,11 +12,17 @@ module.exports = function(app) {
 
   app.get("/api/platform/all", controller.get_platforms)
 
+  app.get("/api/jobs_types/all", controller.get_job_types)
+
   app.post("/api/platform_account/add", [authJwt.verifyToken], controller.add_platform_account)
+
+  app.post("/api/job/add", [authJwt.verifyToken], controller.add_job)
 
   app.get("/api/platform_account/all", [authJwt.verifyToken], controller.get_platform_account)
 
-  app.get("/api/job/run", [authJwt.verifyToken], controller.monitor_followers)
+  app.get("/api/job/all", [authJwt.verifyToken], controller.get_job)
+
+  app.get("/api/job/run", [authJwt.verifyToken], controller.run_job)
 
   app.get("/api/test", [authJwt.verifyToken], controller.test);
 

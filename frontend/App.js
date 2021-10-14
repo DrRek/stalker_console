@@ -156,6 +156,21 @@ export default function App() {
           console.log(e);
         }
       },
+      fetchJobsTypes: async (platformAccountId) => {
+        console.log(platformAccountId)
+        try {
+          const response = await axios({
+            method: 'get',
+            url: `${HOSTNAME}/api/jobs_types/all`,
+            params: {
+              platformAccountId: platformAccountId
+            }
+          });
+          return response.data;
+        } catch (e) {
+          console.log(e);
+        }
+      },
       addPlatformAccount: async (username, password, platformId) => {
         try {
           const response = await axios({
@@ -166,6 +181,22 @@ export default function App() {
               username,
               password,
               platformId,
+            },
+          });
+          return response.data;
+        } catch (e) {
+          console.log(e);
+        }
+      },
+      addJob: async (platformAccountId, jobType) => {
+        try {
+          const response = await axios({
+            method: 'post',
+            url: `${HOSTNAME}/api/job/add`,
+            headers: await get_auth_headers(),
+            data: {
+              platformAccountId,
+              jobType
             },
           });
           return response.data;
@@ -186,7 +217,19 @@ export default function App() {
         }
       },
       getJob: async (platformAccountId) => {
-        return []
+        try {
+          const response = await axios({
+            method: 'get',
+            url: `${HOSTNAME}/api/job/all`,
+            headers: await get_auth_headers(),
+            params: {
+              platformAccountId
+            }
+          });
+          return response.data;
+        } catch (e) {
+          console.log(e);
+        }
       },
       test: async () => {
         try {
@@ -234,7 +277,8 @@ function PlatformAccountTab({route, navigation}) {
       />
       <Tab.Screen
         name="PlatformAccountActivy"
-        component={PlatformAccountActivityScreen}
+        children={() => <PlatformAccountActivityScreen platformAccountId={platformAccountId} navigation={navigation}/>}
+        //component={PlatformAccountActivityScreen}
       />
     </Tab.Navigator>
   );

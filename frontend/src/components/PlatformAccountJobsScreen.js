@@ -27,7 +27,7 @@ export default function PlatformAccountJobsScreen({platformAccountId, navigation
         style={styles.scrollView}
         data={jobs}
         keyExtractor={(item) => item._id}
-        renderItem={({item:{_id, platform, username}}) => 
+        renderItem={({item:{_id, type, target_item}}) => 
           <ListItem 
             key={_id}
             bottomDivider
@@ -37,8 +37,8 @@ export default function PlatformAccountJobsScreen({platformAccountId, navigation
           >        
               <Avatar source={require('../../resources/img/instagram-round.png')} />        
               <ListItem.Content>          
-                <ListItem.Title>{username}</ListItem.Title>          
-                <ListItem.Subtitle>{platform.name}</ListItem.Subtitle>        
+                <ListItem.Title>{type.name}</ListItem.Title>          
+                <ListItem.Subtitle>on user: {target_item}</ListItem.Subtitle>        
               </ListItem.Content>
           </ListItem>
         }
@@ -61,7 +61,9 @@ export default function PlatformAccountJobsScreen({platformAccountId, navigation
         iconLeft
         title=" Add new job"
         onPress={() => {
-          navigation.navigate("NewPlatformAccount") //TODO: add
+          navigation.navigate("NewJob", {
+            platformAccountId
+          })
         }}
         buttonStyle={{
           margin: 20

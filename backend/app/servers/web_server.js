@@ -7,6 +7,7 @@ app.use(bodyParser.json());
 const db = require("../models");
 const Role = db.role;
 const Platform = db.platform
+const JobType = db.job_type
 
 const dbConfig = require("../config/db.config")
 
@@ -93,6 +94,22 @@ function initial() {
         }
 
         console.log("added 'instagram' to platforms collection");
+      });
+    }
+  });
+
+  JobType.estimatedDocumentCount(async (err, count) => {
+    if (!err && count === 0) {
+      new JobType({
+        name: "Follower Monitor",
+        description: "Check periodically if an users loses or gain new followers",
+        platform: await Platform.findOne({name:"instagram"})
+      }).save(err => {
+        if (err) {
+          console.log("error", err);
+        }
+
+        console.log("added 'Follower Monitor' to job types collection");
       });
     }
   });

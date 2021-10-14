@@ -2,10 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { AppState, StyleSheet, Text, View, Button } from "react-native";
 import ApiContext from '../contexts/ApiContext'
 
-export default function PlatformAccountActivityScreen({navigation, route}) {
-  console.log(route)
-  const { platformAccountId } = route
-
+export default function PlatformAccountActivityScreen({navigation, platformAccountId}) {
   return (
     <View style={styles.container}>
       <Text>PlatformAccountActivityScreen</Text>
@@ -17,7 +14,7 @@ export default function PlatformAccountActivityScreen({navigation, route}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#aaa',
     alignItems: 'center',
     justifyContent: 'center',
   },

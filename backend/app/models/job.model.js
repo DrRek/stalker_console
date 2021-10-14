@@ -3,8 +3,6 @@ const mongoose = require("mongoose");
 const Job = mongoose.model(
     "Job",
     new mongoose.Schema({
-        created_at: Date,
-        last_updated_at: Date,
         target_item: String,
         snapshot_data: [],
         type: {
@@ -22,6 +20,8 @@ const Job = mongoose.model(
             ref: "User"
         },
         is_deleted: Boolean,
+    }, {
+        timestamps: true
     })
 );
 

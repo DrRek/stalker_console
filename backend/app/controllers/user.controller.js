@@ -2,6 +2,8 @@ const db = require("../models");
 const Role = db.role;
 const Platform = db.platform
 const PlatformAccount = db.platform_account
+const JobType = db.job_type
+const Job = db.job
 const { IgApiClient } = require('instagram-private-api');
 
 exports.allAccess = (req, res) => {
@@ -26,6 +28,14 @@ exports.get_platforms = async (req, res) => {
     res.status(200).send(platforms)
 }
 
+exports.get_job_types = async (req, res) => {
+    const platform_account_id = req.query.platformAccountId
+    const platform_account = await PlatformAccount.findOne({_id: platform_account_id})
+    const { platform } = platform_account
+    const job_types = await JobType.find({platform: platform})
+    res.status(200).send(job_types)
+}
+
 exports.add_platform_account = (req, res) => {
     new PlatformAccount({
         username: req.body.username,
@@ -40,6 +50,24 @@ exports.add_platform_account = (req, res) => {
         }
         console.log("Platform account added successfully")
         res.status(200).send({ok: true, message: "Platform account added successfully"})
+    });
+}
+
+exports.add_job = (req, res) => {
+    new Job({
+        target_item: "nessuno",
+        snapshot_data: [],
+        type: req.body.jobType,
+        platform_account: req.body.platformAccountId,
+        owner: req.userId,
+    }).save(err => {
+        if (err) {
+            console.log("Error while adding job")
+            console.log("error", err);
+            res.status(200).send({ok: false, message: "Error while adding a job"})
+        }
+        console.log("Job added successfully")
+        res.status(200).send({ok: true, message: "Job added successfully"})
     });
 }
 
@@ -76,4 +104,13 @@ exports.test = async (req, res) => {
 exports.get_platform_account = async (req, res) => {
     console.log("Getting platform accounts")
     res.status(200).send(await PlatformAccount.find({owner: req.userId}).populate("platform"))
+}
+
+exports.get_job = async (req, res) => {
+    console.log("Getting jobs")
+    res.status(200).send(await Job.find({owner: req.userId, platform_account: req.query.platformAccountId}).populate("type"))
+}
+
+exports.run_job = async (req, res) => {
+    const { user_id } = req.userId
 }
