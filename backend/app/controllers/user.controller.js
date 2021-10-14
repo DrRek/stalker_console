@@ -4,6 +4,7 @@ const Platform = db.platform;
 const PlatformAccount = db.platform_account;
 const JobType = db.job_type;
 const Job = db.job;
+const Event = db.event;
 const { IgApiClient } = require("instagram-private-api");
 
 exports.allAccess = (req, res) => {
@@ -118,10 +119,6 @@ exports.get_job = async (req, res) => {
 exports.run_job = async (req, res) => {
   const { userId } = req;
   const { platformAccountId, jobId } = req.query;
-  console.log("here");
-  console.log(userId);
-  console.log(platformAccountId);
-  console.log(jobId);
 
   const ig = new IgApiClient();
 
@@ -138,8 +135,6 @@ exports.run_job = async (req, res) => {
     platformAccount.username,
     platformAccount.encrypted_password
   );
-  console.log(auth.full_name);
-  console.log(auth.pk);
   //const followersFeed = ig.feed.accountFollowers(auth.pk);
   const followersFeed = ig.feed.accountFollowing(auth.pk);
   const { users: updated_followers } = await followersFeed.request();
@@ -166,9 +161,50 @@ exports.run_job = async (req, res) => {
     if (err) {
       console.log("Error while updating job");
       console.log("error", err);
-      res.status(200).send({ ok: false, message: "Error while updating a job" });
+      res
+        .status(200)
+        .send({ ok: false, message: "Error while updating a job" });
     }
     console.log("Job updated successfully");
-    res.status(200).send({ ok: true, message: "Job added successfully" });
   });
+
+  gained_followers.forEach(x => {
+    new Event({
+      owner: userId,
+      platform_account: platformAccountId,
+      job: jobId,
+      name: `Following user ${x.username}`,
+      description: `The monitored user has started following the user ${x.username}`,
+      img: x.profile_pic_url,
+    }).save((err) => {
+      if (err) {
+        console.log("Error while adding an Event");
+        console.log("error", err);
+        res
+          .status(200)
+          .send({ ok: false, message: "Error while adding an Event" });
+      }
+      console.log("Event added successfully");
+    });
+  })
+
+  loosed_followers.forEach(x => {
+    new Event({
+      owner: userId,
+      platform_account: platformAccountId,
+      job: jobId,
+      name: `Unfollowed user ${x.username}`,
+      description: `The monitored user has stoped following the user ${x.username}`,
+      img: x.profile_pic_url,
+    }).save((err) => {
+      if (err) {
+        console.log("Error while adding an Event");
+        console.log("error", err);
+        res
+          .status(200)
+          .send({ ok: false, message: "Error while adding an Event" });
+      }
+      console.log("Event added successfully");
+    });
+  })
 };

@@ -8,6 +8,10 @@ const Event = mongoose.model(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },
+        platform_account:{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "PlatformAccount"
+        },
         job:
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -16,7 +20,7 @@ const Event = mongoose.model(
         name: String,
         description: String,
         img: String,
-    })
+    }, {timestamp: true})
 );
 
 module.exports = Event;
