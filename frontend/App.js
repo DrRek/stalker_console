@@ -17,6 +17,7 @@ import UserInfoScreen from './src/components/UserInfoScreen';
 import PlatformAccountAddScreen from './src/components/PlatformAccountAddScreen';
 import PlatformAccountJobsScreen from './src/components/PlatformAccountJobsScreen';
 import PlatformAccountActivityScreen from './src/components/PlatformAccountActivityScreen';
+import BackgroundService from './src/components/BackgroundService';
 import JobAddScreen from './src/components/JobAddScreen';
 import deviceStorage from './src/services/storage.service';
 import ApiContext from './src/contexts/ApiContext';
@@ -70,23 +71,6 @@ export default function App() {
       user: null,
     },
   );
-
-  React.useEffect(() => {
-    // Fetch the token from storage then navigate to our appropriate place
-    const bootstrapAsync = async () => {
-      let user;
-      try {
-        user = JSON.parse(await deviceStorage.getItem('user'));
-      } catch (e) {
-        // Restoring token failed
-      }
-      // After restoring token, we may need to validate it in production apps
-      // This will switch to the App screen or Auth screen and this loading
-      // screen will be unmounted and thrown away.
-      dispatch({type: 'RESTORE_TOKEN', user: user});
-    };
-    bootstrapAsync();
-  }, []);
 
   const apiContext = React.useMemo(
     () => ({
@@ -247,6 +231,18 @@ export default function App() {
           console.log(e);
         }
       },
+      runPendingJobs: async () => {
+        try {
+          const response = await axios({
+            method: 'get',
+            url: `${HOSTNAME}/api/job/run/all`,
+            headers: await get_auth_headers(),
+          });
+          return response.data;
+        } catch (e) {
+          console.log(e);
+        }
+      },
       test: async () => {
         try {
           const response = await axios({
@@ -259,9 +255,28 @@ export default function App() {
           console.log(e);
         }
       }
-    }),
-    [],
+    }), []
   );
+
+
+
+  React.useEffect(() => {
+    // Fetch the token from storage then navigate to our appropriate place
+    const bootstrapAsync = async () => {
+      let user;
+      try {
+        user = JSON.parse(await deviceStorage.getItem('user'));
+      } catch (e) {
+        // Restoring token failed
+      }
+      // After restoring token, we may need to validate it in production apps
+      // This will switch to the App screen or Auth screen and this loading
+      // screen will be unmounted and thrown away.
+      dispatch({type: 'RESTORE_TOKEN', user: user});
+    };
+    bootstrapAsync();
+    BackgroundService.Start(apiContext)
+  }, []);
 
   return (
     <ApiContext.Provider value={apiContext}>

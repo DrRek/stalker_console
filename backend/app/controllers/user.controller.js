@@ -94,6 +94,11 @@ exports.monitor_followers = async (req, res) => {
 };
 
 exports.test = async (req, res) => {
+  console.log(
+    `User ${
+      req.userId
+    } at time ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}:`
+  );
   res.status(200).send({ ok: true, message: "Test completed succesfully" });
 };
 
@@ -116,6 +121,120 @@ exports.get_job = async (req, res) => {
   );
 };
 
+exports.run_all_job = async (req, res) => {
+  const { userId } = req;
+
+  const platformAccounts = await PlatformAccount.find({
+    owner: userId,
+  }).populate("platform");
+
+  platformAccounts.forEach((platformAccount) => {
+    const {
+      _id: pId,
+      username,
+      encrypted_password,
+      platform,
+    } = platformAccount;
+
+    const jobs = await Jobs.find({
+      owner: userId,
+      platform: pId,
+    }).populate("type");
+
+    if (jobs.length == 0) return;
+
+    switch (platform.name) {
+      case "instagram":
+        const ig = new IgApiClient();
+        ig.state.generateDevice(platformAccount.username);
+        const auth = await ig.account.login(username, encrypted_password);
+
+        jobs.forEach((job) => {
+          const { type, target_item } = job;
+
+          switch (type.name) {
+            case "Follower Monitor":
+              const feed = ig.feed.accountFollowers(target_item);
+              let new_followers = [];
+              feed.items$.subscribe(
+                (followers) =>
+                  (new_followers = [...tot_followers, ...followers]),
+                (error) => console.error(error),
+                () => {
+                  const { snapshot_data: old_followers } = job;
+
+                  const gained_followers = new_followers.filter(
+                    (x) => !old_followers.some((y) => y.pk === x.pk)
+                  );
+                  const loosed_followers = old_followers.filter(
+                    (x) => !new_followers.some((y) => y.pk === x.pk)
+                  );
+
+                  job.snapshot_data = new_followers;
+                  job.save((err) => {
+                    if (err) {
+                      console.log("Error while updating job");
+                      console.log("error", err);
+                      res
+                        .status(200)
+                        .send({ ok: false, message: "Error while updating a job" });
+                    }
+                    console.log("Job updated successfully");
+                  });
+
+                  gained_followers.forEach((x) => {
+                    new Event({
+                      owner: userId,
+                      platform_account: platformAccountId,
+                      job: jobId,
+                      name: `Following user ${x.username}`,
+                      description: `The monitored user has started following the user ${x.username}`,
+                      img: x.profile_pic_url,
+                    }).save((err) => {
+                      if (err) {
+                        console.log("Error while adding an Event");
+                        console.log("error", err);
+                        res
+                          .status(200)
+                          .send({ ok: false, message: "Error while adding an Event" });
+                      }
+                      console.log("Event added successfully");
+                    });
+                  });
+                
+                  loosed_followers.forEach((x) => {
+                    new Event({
+                      owner: userId,
+                      platform_account: platformAccountId,
+                      job: jobId,
+                      name: `Unfollowed user ${x.username}`,
+                      description: `The monitored user has stoped following the user ${x.username}`,
+                      img: x.profile_pic_url,
+                    }).save((err) => {
+                      if (err) {
+                        console.log("Error while adding an Event");
+                        console.log("error", err);
+                        res
+                          .status(200)
+                          .send({ ok: false, message: "Error while adding an Event" });
+                      }
+                      console.log("Event added successfully");
+                    });
+                  });
+                }
+              );
+              break;
+            default:
+              console.err(`JobType ${type.name} not yet fully implemented`);
+          }
+        });
+        break;
+      default:
+        console.err(`Platform ${platform.name} not yet fully implemented`);
+    }
+  });
+};
+
 exports.run_job = async (req, res) => {
   const { userId } = req;
   const { platformAccountId, jobId } = req.query;
@@ -128,13 +247,14 @@ exports.run_job = async (req, res) => {
   });
   ig.state.generateDevice(platformAccount.username);
 
-  //ig.state.proxyUrl = "http://127.0.0.1:8083/";
-  //ig.state.user_id_mongo = userId
+  ig.state.proxyUrl = "http://127.0.0.1:8083/";
+  ig.state.user_id_mongo = userId
 
   const auth = await ig.account.login(
     platformAccount.username,
     platformAccount.encrypted_password
   );
+
   //const followersFeed = ig.feed.accountFollowers(auth.pk);
   const followersFeed = ig.feed.accountFollowing(auth.pk);
   const { users: updated_followers } = await followersFeed.request();
@@ -168,7 +288,7 @@ exports.run_job = async (req, res) => {
     console.log("Job updated successfully");
   });
 
-  gained_followers.forEach(x => {
+  gained_followers.forEach((x) => {
     new Event({
       owner: userId,
       platform_account: platformAccountId,
@@ -186,9 +306,9 @@ exports.run_job = async (req, res) => {
       }
       console.log("Event added successfully");
     });
-  })
+  });
 
-  loosed_followers.forEach(x => {
+  loosed_followers.forEach((x) => {
     new Event({
       owner: userId,
       platform_account: platformAccountId,
@@ -206,5 +326,5 @@ exports.run_job = async (req, res) => {
       }
       console.log("Event added successfully");
     });
-  })
+  });
 };
