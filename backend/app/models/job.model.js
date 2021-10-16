@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Job = mongoose.model(
     "Job",
     new mongoose.Schema({
-        target_item: String,
+        target_item: {},
         snapshot_data: [],
         type: {
             type: mongoose.Schema.Types.ObjectId,

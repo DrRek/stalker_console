@@ -62,7 +62,7 @@ exports.add_platform_account = (req, res) => {
 
 exports.add_job = (req, res) => {
   new Job({
-    target_item: "nessuno",
+    target_item: req.body.targetUser,
     snapshot_data: [],
     type: req.body.jobType,
     platform_account: req.body.platformAccountId,
@@ -122,13 +122,18 @@ exports.get_job = async (req, res) => {
 };
 
 exports.run_all_job = async (req, res) => {
+  res.status(200).send({
+    ok: true,
+  });
+  return;
+
   const { userId } = req;
 
   const platformAccounts = await PlatformAccount.find({
     owner: userId,
   }).populate("platform");
 
-  platformAccounts.forEach((platformAccount) => {
+  platformAccounts.forEach(async (platformAccount) => {
     const {
       _id: pId,
       username,
@@ -136,7 +141,7 @@ exports.run_all_job = async (req, res) => {
       platform,
     } = platformAccount;
 
-    const jobs = await Jobs.find({
+    const jobs = await Job.find({
       owner: userId,
       platform: pId,
     }).populate("type");
@@ -175,9 +180,10 @@ exports.run_all_job = async (req, res) => {
                     if (err) {
                       console.log("Error while updating job");
                       console.log("error", err);
-                      res
-                        .status(200)
-                        .send({ ok: false, message: "Error while updating a job" });
+                      res.status(200).send({
+                        ok: false,
+                        message: "Error while updating a job",
+                      });
                     }
                     console.log("Job updated successfully");
                   });
@@ -194,14 +200,15 @@ exports.run_all_job = async (req, res) => {
                       if (err) {
                         console.log("Error while adding an Event");
                         console.log("error", err);
-                        res
-                          .status(200)
-                          .send({ ok: false, message: "Error while adding an Event" });
+                        res.status(200).send({
+                          ok: false,
+                          message: "Error while adding an Event",
+                        });
                       }
                       console.log("Event added successfully");
                     });
                   });
-                
+
                   loosed_followers.forEach((x) => {
                     new Event({
                       owner: userId,
@@ -214,9 +221,10 @@ exports.run_all_job = async (req, res) => {
                       if (err) {
                         console.log("Error while adding an Event");
                         console.log("error", err);
-                        res
-                          .status(200)
-                          .send({ ok: false, message: "Error while adding an Event" });
+                        res.status(200).send({
+                          ok: false,
+                          message: "Error while adding an Event",
+                        });
                       }
                       console.log("Event added successfully");
                     });
@@ -235,6 +243,31 @@ exports.run_all_job = async (req, res) => {
   });
 };
 
+exports.search_users = async (req, res) => {
+  const { userId } = req;
+  const { platformAccountId, userSearch } = req.query;
+
+  const ig = new IgApiClient();
+
+  const platformAccount = await PlatformAccount.findOne({
+    owner: userId,
+    _id: platformAccountId,
+  });
+  ig.state.generateDevice(platformAccount.username);
+
+  ig.state.proxyUrl = "http://127.0.0.1:8083/";
+  ig.state.user_id_mongo = userId;
+
+  await ig.account.login(
+    platformAccount.username,
+    platformAccount.encrypted_password
+  );
+
+  const users = await ig.user.search(userSearch);
+
+  res.status(200).send({ ok: true, data: users });
+};
+
 exports.run_job = async (req, res) => {
   const { userId } = req;
   const { platformAccountId, jobId } = req.query;
@@ -248,7 +281,7 @@ exports.run_job = async (req, res) => {
   ig.state.generateDevice(platformAccount.username);
 
   ig.state.proxyUrl = "http://127.0.0.1:8083/";
-  ig.state.user_id_mongo = userId
+  ig.state.user_id_mongo = userId;
 
   const auth = await ig.account.login(
     platformAccount.username,

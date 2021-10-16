@@ -24,7 +24,9 @@ module.exports = function(app) {
 
   app.get("/api/job/run", [authJwt.verifyToken], controller.run_job)
 
-  app.get("/api/job/ru/all", [authJwt.verifyToken], controller.run_all_job)
+  app.get("/api/job/run/all", [authJwt.verifyToken], controller.run_all_job)
+
+  app.get("/api/platform_account/users/search", [authJwt.verifyToken], controller.search_users)
 
   app.get("/api/test", [authJwt.verifyToken], controller.test);
 
