@@ -1,6 +1,19 @@
 import BackgroundService from 'react-native-background-actions';
+import deviceStorage from '../services/storage.service';
+
+const axios = require('axios');
 
 const sleep = time => new Promise(resolve => setTimeout(() => resolve(), time));
+
+const get_auth_headers = async () => {
+  const user = JSON.parse(await deviceStorage.getItem('user'));
+  if (user && user.accessToken) {
+    return {'x-access-token': user.accessToken};
+  } else {
+    return {};
+  }
+};
+
 
 const handleWebSocket = async () => {
   var ws = new WebSocket('ws://192.168.1.86:8084', null, {

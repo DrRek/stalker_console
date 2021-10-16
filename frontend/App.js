@@ -96,7 +96,7 @@ export default function App() {
         } catch (e) {
           console.log('Error while logging in');
           console.log(e);
-          console.log(e.response)
+          console.log(e.response);
         }
       },
       signOut: () => {
@@ -140,15 +140,15 @@ export default function App() {
           console.log(e);
         }
       },
-      fetchJobsTypes: async (platformAccountId) => {
-        console.log(platformAccountId)
+      fetchJobsTypes: async platformAccountId => {
+        console.log(platformAccountId);
         try {
           const response = await axios({
             method: 'get',
             url: `${HOSTNAME}/api/jobs_types/all`,
             params: {
-              platformAccountId: platformAccountId
-            }
+              platformAccountId: platformAccountId,
+            },
           });
           return response.data;
         } catch (e) {
@@ -172,7 +172,7 @@ export default function App() {
           console.log(e);
         }
       },
-      addJob: async (platformAccountId, jobType) => {
+      addJob: async (platformAccountId, jobType, targetUser) => {
         try {
           const response = await axios({
             method: 'post',
@@ -180,7 +180,8 @@ export default function App() {
             headers: await get_auth_headers(),
             data: {
               platformAccountId,
-              jobType
+              jobType,
+              targetUser
             },
           });
           return response.data;
@@ -200,15 +201,15 @@ export default function App() {
           console.log(e);
         }
       },
-      getJob: async (platformAccountId) => {
+      getJob: async platformAccountId => {
         try {
           const response = await axios({
             method: 'get',
             url: `${HOSTNAME}/api/job/all`,
             headers: await get_auth_headers(),
             params: {
-              platformAccountId
-            }
+              platformAccountId,
+            },
           });
           return response.data;
         } catch (e) {
@@ -223,8 +224,8 @@ export default function App() {
             headers: await get_auth_headers(),
             params: {
               platformAccountId,
-              jobId
-            }
+              jobId,
+            },
           });
           return response.data;
         } catch (e) {
@@ -243,6 +244,22 @@ export default function App() {
           console.log(e);
         }
       },
+      searchPlatformAccountUsers: async (platformAccountId, userSearch) => {
+        try {
+          const response = await axios({
+            method: 'get',
+            url: `${HOSTNAME}/api/platform_account/users/search`,
+            headers: await get_auth_headers(),
+            params: {
+              platformAccountId,
+              userSearch
+            },
+          });
+          return response.data;
+        } catch (e) {
+          console.log(e);
+        }
+      },
       test: async () => {
         try {
           const response = await axios({
@@ -254,11 +271,10 @@ export default function App() {
         } catch (e) {
           console.log(e);
         }
-      }
-    }), []
+      },
+    }),
+    [],
   );
-
-
 
   React.useEffect(() => {
     // Fetch the token from storage then navigate to our appropriate place
@@ -275,7 +291,7 @@ export default function App() {
       dispatch({type: 'RESTORE_TOKEN', user: user});
     };
     bootstrapAsync();
-    BackgroundService.Start(apiContext)
+    BackgroundService.Start(apiContext);
   }, []);
 
   return (
@@ -298,17 +314,27 @@ export default function App() {
 }
 
 function PlatformAccountTab({route, navigation}) {
-  const { platformAccountId } = route.params
+  const {platformAccountId} = route.params;
   return (
     <Tab.Navigator>
       <Tab.Screen
         name="PlatformAccountJobs"
-        children={() => <PlatformAccountJobsScreen platformAccountId={platformAccountId} navigation={navigation}/>}
+        children={() => (
+          <PlatformAccountJobsScreen
+            platformAccountId={platformAccountId}
+            navigation={navigation}
+          />
+        )}
         //component={PlatformAccountJobsScreen}
       />
       <Tab.Screen
         name="PlatformAccountActivy"
-        children={() => <PlatformAccountActivityScreen platformAccountId={platformAccountId} navigation={navigation}/>}
+        children={() => (
+          <PlatformAccountActivityScreen
+            platformAccountId={platformAccountId}
+            navigation={navigation}
+          />
+        )}
         //component={PlatformAccountActivityScreen}
       />
     </Tab.Navigator>
@@ -323,10 +349,7 @@ function HomeStack() {
         name="NewPlatformAccount"
         component={PlatformAccountAddScreen}
       />
-      <Stack.Screen
-        name="NewJob"
-        component={JobAddScreen}
-      />
+      <Stack.Screen name="NewJob" component={JobAddScreen} />
       <Stack.Screen name="PlatformAccountTab" component={PlatformAccountTab} />
     </Stack.Navigator>
   );
