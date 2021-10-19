@@ -12,7 +12,6 @@ export default function LoginScreen() {
   }
 
   const passwordRef = useRef();
-  const submitRef = useRef();
   return (   
     <View style={styles.container}>
       <Text>Home Screen</Text>
