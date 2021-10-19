@@ -9,7 +9,7 @@ const Role = db.role;
 const Platform = db.platform
 const JobType = db.job_type
 
-const dbConfig = require("../config/db.config")
+const dbConfig = process.env.NODE_ENV == "prod" ? require("../config/db.prod.config") : require("../config/db.config")
 
 db.mongoose
   .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`, {
