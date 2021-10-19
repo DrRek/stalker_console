@@ -46,6 +46,7 @@ exports.add_platform_account = (req, res) => {
     encrypted_password: req.body.password,
     owner: req.userId,
     platform: req.body.platformId,
+    active: true
   }).save((err) => {
     if (err) {
       console.log("Error while adding platform account");
@@ -93,7 +94,7 @@ exports.get_platform_account = async (req, res) => {
   res
     .status(200)
     .send(
-      await PlatformAccount.find({ owner: req.userId }).populate("platform")
+      await PlatformAccount.find({ owner: req.userId, active: true }).populate("platform")
     );
 };
 
@@ -107,6 +108,19 @@ exports.get_job = async (req, res) => {
   );
 };
 
+exports.delete_platform_account = async (req, res) => {
+  await PlatformAccount.findOneAndUpdate({
+    owner: req.userId,
+    _id: req.body.platformAccountId
+  }, {
+    active: false
+  });
+  res.status(200).send({
+    ok: true,
+    message: "Platform Account Deleted",
+  });
+}
+
 exports.run_all_job = async (req, res) => {
   res.status(200).send({
     ok: true,
@@ -119,6 +133,7 @@ exports.run_all_job = async (req, res) => {
 
   const platformAccounts = await PlatformAccount.find({
     owner: userId,
+    active: true
   }).populate("platform");
 
   platformAccounts.forEach(async (platformAccount) => {
@@ -239,95 +254,4 @@ exports.run_job = async (req, res) => {
     message: "Not implemented yet",
   });
   return
-  const { userId } = req;
-  const { platformAccountId, jobId } = req.query;
-
-  const ig = new IgApiClient();
-
-  const platformAccount = await PlatformAccount.findOne({
-    owner: userId,
-    _id: platformAccountId,
-  });
-  ig.state.generateDevice(platformAccount.username);
-
-  ig.state.proxyUrl = "http://127.0.0.1:8083/";
-  ig.state.user_id_mongo = userId;
-
-  const auth = await ig.account.login(
-    platformAccount.username,
-    platformAccount.encrypted_password
-  );
-
-  //const followersFeed = ig.feed.accountFollowers(auth.pk);
-  const followersFeed = ig.feed.accountFollowing(auth.pk);
-  const { users: updated_followers } = await followersFeed.request();
-
-  const job = await Job.findOne({
-    _id: jobId,
-    owner: userId,
-    platform_account: platformAccountId,
-  });
-  const { snapshot_data: old_followers } = job;
-
-  let gained_followers = updated_followers.filter(
-    (x) => !old_followers.some((y) => y.pk === x.pk)
-  );
-  let loosed_followers = old_followers.filter(
-    (x) => !updated_followers.some((y) => y.pk === x.pk)
-  );
-  console.log(
-    `Gained: ${gained_followers.length} - Lossed: ${loosed_followers.length}`
-  );
-
-  job.snapshot_data = updated_followers;
-  job.save((err) => {
-    if (err) {
-      console.log("Error while updating job");
-      console.log("error", err);
-      res
-        .status(200)
-        .send({ ok: false, message: "Error while updating a job" });
-    }
-    console.log("Job updated successfully");
-  });
-
-  gained_followers.forEach((x) => {
-    new Event({
-      owner: userId,
-      platform_account: platformAccountId,
-      job: jobId,
-      name: `Following user ${x.username}`,
-      description: `The monitored user has started following the user ${x.username}`,
-      img: x.profile_pic_url,
-    }).save((err) => {
-      if (err) {
-        console.log("Error while adding an Event");
-        console.log("error", err);
-        res
-          .status(200)
-          .send({ ok: false, message: "Error while adding an Event" });
-      }
-      console.log("Event added successfully");
-    });
-  });
-
-  loosed_followers.forEach((x) => {
-    new Event({
-      owner: userId,
-      platform_account: platformAccountId,
-      job: jobId,
-      name: `Unfollowed user ${x.username}`,
-      description: `The monitored user has stoped following the user ${x.username}`,
-      img: x.profile_pic_url,
-    }).save((err) => {
-      if (err) {
-        console.log("Error while adding an Event");
-        console.log("error", err);
-        res
-          .status(200)
-          .send({ ok: false, message: "Error while adding an Event" });
-      }
-      console.log("Event added successfully");
-    });
-  });
 };

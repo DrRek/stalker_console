@@ -75,10 +75,6 @@ export default function App() {
     () => ({
       signIn: async (username, password) => {
         console.log(Config.HOSTNAME);
-        // In a production app, we need to send some data (usually username, password) to server and get a token
-        // We will also need to handle errors if sign in failed
-        // After getting token, we need to persist the token using `SecureStore`
-        // In the example, we'll use a dummy token
         try {
           const response = await axios({
             method: 'post',
@@ -104,10 +100,6 @@ export default function App() {
         dispatch({type: 'SIGN_OUT'});
       },
       signUp: async (username, email, password) => {
-        // In a production app, we need to send user data to server and get a token
-        // We will also need to handle errors if sign up failed
-        // After getting token, we need to persist the token using `SecureStore`
-        // In the example, we'll use a dummy token
         const newUserRequest = {
           username: username,
           email: email,
@@ -126,8 +118,6 @@ export default function App() {
           console.log('Error while registering');
           console.log(e);
         }
-        //deviceStorage.saveItem("user", JSON.stringify({"name": "luca"}))
-        //dispatch({ type: 'SIGN_IN', user: {"name": "luca"} });
       },
       fetchPlatforms: async () => {
         try {
@@ -165,6 +155,21 @@ export default function App() {
               username,
               password,
               platformId,
+            },
+          });
+          return response.data;
+        } catch (e) {
+          console.log(e);
+        }
+      },
+      delPlatformAccount: async platformAccountId => {
+        try {
+          const response = await axios({
+            method: 'post',
+            url: `${Config.HOSTNAME}/api/platform_account/del`,
+            headers: await get_auth_headers(),
+            data: {
+              platformAccountId
             },
           });
           return response.data;
@@ -309,7 +314,7 @@ export default function App() {
               options={{headerShown: false}}
               children={() => (
                 <Drawer.Navigator>
-                  <Stack.Screen name="Main" component={MainScreen} />
+                  <Stack.Screen name="Stalker Console" component={MainScreen} />
                   <Drawer.Screen name="Account" component={UserInfoScreen} />
                 </Drawer.Navigator>
               )}

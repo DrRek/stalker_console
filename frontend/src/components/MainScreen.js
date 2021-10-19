@@ -27,6 +27,12 @@ export default function Main({navigation}) {
     });
   }, [navigation]);
 
+  const deletePlatformAccount = async platformAccountId => {
+    setRefreshing(true);
+    await api.delPlatformAccount(platformAccountId)
+    refreshPlatformAccounts();
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
@@ -34,9 +40,17 @@ export default function Main({navigation}) {
         data={platformAccounts}
         keyExtractor={item => item._id}
         renderItem={({item: {_id, platform, username}}) => (
-          <ListItem
+          <ListItem.Swipeable
             key={_id}
             bottomDivider
+            rightContent={
+              <Button
+                title="Delete"
+                icon={{name: 'delete', color: 'white'}}
+                buttonStyle={{minHeight: '100%', backgroundColor: 'red'}}
+                onPress={() => deletePlatformAccount(_id)}
+              />
+            }
             onPress={() => {
               navigation.navigate('PlatformAccountTab', {
                 platformAccountId: _id,
@@ -49,7 +63,7 @@ export default function Main({navigation}) {
               <ListItem.Title>{username}</ListItem.Title>
               <ListItem.Subtitle>{platform.name}</ListItem.Subtitle>
             </ListItem.Content>
-          </ListItem>
+          </ListItem.Swipeable>
         )}
         numColumns={1}
         refreshControl={
@@ -58,15 +72,18 @@ export default function Main({navigation}) {
             onRefresh={refreshPlatformAccounts}
           />
         }
-      />
-      <Icon
-        reverse
-        raised
-        name="add"
-        onPress={() => console.log('hello')}
-        onPress={() => {
-          navigation.navigate('NewPlatformAccount');
-        }}
+        ListFooterComponent={
+          <Icon
+            reverse
+            raised
+            name="add"
+            onPress={() => {
+              navigation.navigate('NewPlatformAccount');
+            }}
+            color="#2089dc"
+          />
+        }
+        ListFooterComponentStyle={styles.listfootercomponent}
       />
     </SafeAreaView>
   );
@@ -75,6 +92,11 @@ export default function Main({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  listfootercomponent: {
+    marginTop: 20,
+    flex: 1,
+    alignItems: 'center',
   },
   scrollView: {
     flex: 1,

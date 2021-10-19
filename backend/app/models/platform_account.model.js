@@ -15,6 +15,7 @@ const PlatformAccount = mongoose.model(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },
+        active: Boolean
     })
 );
 
