@@ -23,7 +23,7 @@ import deviceStorage from './src/services/storage.service';
 import ApiContext from './src/contexts/ApiContext';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import Config from "react-native-config";
+import Config from 'react-native-config';
 
 const axios = require('axios');
 
@@ -74,7 +74,7 @@ export default function App() {
   const apiContext = React.useMemo(
     () => ({
       signIn: async (username, password) => {
-        console.log(Config.HOSTNAME)
+        console.log(Config.HOSTNAME);
         // In a production app, we need to send some data (usually username, password) to server and get a token
         // We will also need to handle errors if sign in failed
         // After getting token, we need to persist the token using `SecureStore`
@@ -181,7 +181,7 @@ export default function App() {
             data: {
               platformAccountId,
               jobType,
-              targetUser
+              targetUser,
             },
           });
           return response.data;
@@ -252,7 +252,7 @@ export default function App() {
             headers: await get_auth_headers(),
             params: {
               platformAccountId,
-              userSearch
+              userSearch,
             },
           });
           return response.data;
@@ -303,10 +303,27 @@ export default function App() {
             <Tab.Screen name="Register" component={RegisterScreen} />
           </Tab.Navigator>
         ) : (
-          <Drawer.Navigator>
-            <Drawer.Screen name="HomeStack" component={HomeStack} />
-            <Drawer.Screen name="Account" component={UserInfoScreen} />
-          </Drawer.Navigator>
+          <Stack.Navigator>
+            <Stack.Screen
+              name="provaasd"
+              options={{headerShown: false}}
+              children={() => (
+                <Drawer.Navigator>
+                  <Stack.Screen name="Main" component={MainScreen} />
+                  <Drawer.Screen name="Account" component={UserInfoScreen} />
+                </Drawer.Navigator>
+              )}
+            />
+            <Stack.Screen
+              name="PlatformAccountTab"
+              component={PlatformAccountTab}
+            />
+            <Stack.Screen
+              name="NewPlatformAccount"
+              component={PlatformAccountAddScreen}
+            />
+            <Stack.Screen name="NewJob" component={JobAddScreen} />
+          </Stack.Navigator>
         )}
       </NavigationContainer>
     </ApiContext.Provider>
@@ -316,7 +333,10 @@ export default function App() {
 function PlatformAccountTab({route, navigation}) {
   const {platformAccountId} = route.params;
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}>
       <Tab.Screen
         name="PlatformAccountJobs"
         children={() => (
@@ -325,7 +345,6 @@ function PlatformAccountTab({route, navigation}) {
             navigation={navigation}
           />
         )}
-        //component={PlatformAccountJobsScreen}
       />
       <Tab.Screen
         name="PlatformAccountActivy"
@@ -335,23 +354,8 @@ function PlatformAccountTab({route, navigation}) {
             navigation={navigation}
           />
         )}
-        //component={PlatformAccountActivityScreen}
       />
     </Tab.Navigator>
-  );
-}
-
-function HomeStack() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen name="Main" component={MainScreen} />
-      <Stack.Screen
-        name="NewPlatformAccount"
-        component={PlatformAccountAddScreen}
-      />
-      <Stack.Screen name="NewJob" component={JobAddScreen} />
-      <Stack.Screen name="PlatformAccountTab" component={PlatformAccountTab} />
-    </Stack.Navigator>
   );
 }
 

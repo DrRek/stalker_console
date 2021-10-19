@@ -27,7 +27,7 @@ export default function NewPlatformAccountScreen({navigation}) {
         onValueChange={(platformValue, itemIndex) => setPlatformId(platformValue)}
       >
         {
-          platforms.map(({_id, name}) => (
+          platforms && platforms.map(({_id, name}) => (
             <Picker.Item label={name} value={_id} key={_id}/>
           ))
         }
