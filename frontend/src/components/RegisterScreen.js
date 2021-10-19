@@ -7,6 +7,14 @@ export default function Register() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const { signUp, signIn } = React.useContext(ApiContext);
+
+  const submitPressed = async () => {
+    await signUp(username, email, password)
+    signIn(username, password)
+  }
+
+  const emailRef = useRef();
+  const passwordRef = useRef();
   return (
     <View style={styles.container}>
       <TextInput
@@ -16,6 +24,8 @@ export default function Register() {
         placeholder="Username"
         autoCapitalize='none'
         autoCorrect={false}
+        blurOnSubmit={false}
+        onSubmitEditing={() => emailRef.current.focus()}
       />
       <TextInput
         style={styles.input}
@@ -25,6 +35,9 @@ export default function Register() {
         autoCapitalize='none'
         autoCorrect={false}
         autoCompleteType='email'
+        ref={emailRef}
+        blurOnSubmit={false}
+        onSubmitEditing={() => passwordRef.current.focus()}
       />
       <TextInput
         style={styles.input}
@@ -32,13 +45,13 @@ export default function Register() {
         value={password}
         secureTextEntry={true}
         placeholder="Password"
+        ref={passwordRef}
+        blurOnSubmit={false}
+        onSubmitEditing={submitPressed}
       />
       <Button
         title="Register"
-        onPress={async () => {
-          await signUp(username, email, password)
-          signIn(username, password)
-        }}
+        onPress={submitPressed}
       />
     </View>
   );

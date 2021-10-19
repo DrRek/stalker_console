@@ -6,6 +6,13 @@ export default function LoginScreen() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const { signIn } = React.useContext(ApiContext);
+
+  const submitPressed = () => {
+    signIn(username, password)
+  }
+
+  const passwordRef = useRef();
+  const submitRef = useRef();
   return (   
     <View style={styles.container}>
       <Text>Home Screen</Text>
@@ -17,6 +24,8 @@ export default function LoginScreen() {
         autoCapitalize='none'
         autoCorrect={false}
         autoCompleteType='email'
+        blurOnSubmit={false}
+        onSubmitEditing={() => passwordRef.current.focus()}
       />
       <TextInput
         style={styles.input}
@@ -24,12 +33,13 @@ export default function LoginScreen() {
         value={password}
         secureTextEntry={true}
         placeholder="Password"
+        ref={passwordRef}
+        blurOnSubmit={false}
+        onSubmitEditing={submitPressed}
       />
       <Button
         title="Login"
-        onPress={() => {
-          signIn(username, password)
-        }}
+        onPress={submitPressed}
       />
     </View>
   );
