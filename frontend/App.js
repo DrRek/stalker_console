@@ -23,14 +23,13 @@ import deviceStorage from './src/services/storage.service';
 import ApiContext from './src/contexts/ApiContext';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
+import Config from "react-native-config";
 
 const axios = require('axios');
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
-
-const HOSTNAME = 'http://192.168.1.86:8090';
 
 const get_auth_headers = async () => {
   const user = JSON.parse(await deviceStorage.getItem('user'));
@@ -75,6 +74,7 @@ export default function App() {
   const apiContext = React.useMemo(
     () => ({
       signIn: async (username, password) => {
+        console.log(Config.HOSTNAME)
         // In a production app, we need to send some data (usually username, password) to server and get a token
         // We will also need to handle errors if sign in failed
         // After getting token, we need to persist the token using `SecureStore`
@@ -82,7 +82,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'post',
-            url: 'http://192.168.1.86:8090/api/auth/signin',
+            url: `${Config.HOSTNAME}/api/auth/signin`,
             headers: {},
             data: {
               username,
@@ -117,7 +117,7 @@ export default function App() {
           console.log(newUserRequest);
           const response = await axios({
             method: 'post',
-            url: 'http://192.168.1.86:8090/api/auth/signup',
+            url: `${Config.HOSTNAME}/api/auth/signup`,
             headers: {},
             data: newUserRequest,
           });
@@ -133,7 +133,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'get',
-            url: `${HOSTNAME}/api/platform/all`,
+            url: `${Config.HOSTNAME}/api/platform/all`,
           });
           return response.data;
         } catch (e) {
@@ -145,7 +145,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'get',
-            url: `${HOSTNAME}/api/jobs_types/all`,
+            url: `${Config.HOSTNAME}/api/jobs_types/all`,
             params: {
               platformAccountId: platformAccountId,
             },
@@ -159,7 +159,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'post',
-            url: `${HOSTNAME}/api/platform_account/add`,
+            url: `${Config.HOSTNAME}/api/platform_account/add`,
             headers: await get_auth_headers(),
             data: {
               username,
@@ -176,7 +176,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'post',
-            url: `${HOSTNAME}/api/job/add`,
+            url: `${Config.HOSTNAME}/api/job/add`,
             headers: await get_auth_headers(),
             data: {
               platformAccountId,
@@ -193,7 +193,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'get',
-            url: `${HOSTNAME}/api/platform_account/all`,
+            url: `${Config.HOSTNAME}/api/platform_account/all`,
             headers: await get_auth_headers(),
           });
           return response.data;
@@ -205,7 +205,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'get',
-            url: `${HOSTNAME}/api/job/all`,
+            url: `${Config.HOSTNAME}/api/job/all`,
             headers: await get_auth_headers(),
             params: {
               platformAccountId,
@@ -220,7 +220,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'get',
-            url: `${HOSTNAME}/api/job/run`,
+            url: `${Config.HOSTNAME}/api/job/run`,
             headers: await get_auth_headers(),
             params: {
               platformAccountId,
@@ -236,7 +236,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'get',
-            url: `${HOSTNAME}/api/job/run/all`,
+            url: `${Config.HOSTNAME}/api/job/run/all`,
             headers: await get_auth_headers(),
           });
           return response.data;
@@ -248,7 +248,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'get',
-            url: `${HOSTNAME}/api/platform_account/users/search`,
+            url: `${Config.HOSTNAME}/api/platform_account/users/search`,
             headers: await get_auth_headers(),
             params: {
               platformAccountId,
@@ -264,7 +264,7 @@ export default function App() {
         try {
           const response = await axios({
             method: 'get',
-            url: `${HOSTNAME}/api/test`,
+            url: `${Config.HOSTNAME}/api/test`,
             headers: await get_auth_headers(),
           });
           return response.data;

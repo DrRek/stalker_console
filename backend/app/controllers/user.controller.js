@@ -197,8 +197,8 @@ exports.run_all_job = async (req, res) => {
                   loosed_followers.forEach((x) => {
                     new Event({
                       owner: userId,
-                      platform_account: platformAccountId,
-                      job: jobId,
+                      platform_account: pId,
+                      job: job._id,
                       name: `Unfollowed user ${x.username}`,
                       description: `The monitored user has stoped following the user ${x.username}`,
                       img: x.profile_pic_url,

@@ -1,5 +1,6 @@
 import BackgroundService from 'react-native-background-actions';
 import deviceStorage from '../services/storage.service';
+import Config from "react-native-config";
 
 const axios = require('axios');
 
@@ -64,7 +65,7 @@ class BService {
       },
       color: '#ff00ff',
       parameters: {
-        delay: 1000*60,
+        delay: parseInt(Config.PERIODIC_CHECK),
       },
       actions: '["Exit"]',
     };

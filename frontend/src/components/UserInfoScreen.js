@@ -2,6 +2,7 @@ import React, {useRef, useState, useEffect} from 'react';
 import {AppState, StyleSheet, Text, View, Button} from 'react-native';
 import ApiContext from '../contexts/ApiContext';
 import deviceStorage from '../services/storage.service';
+import Config from "react-native-config";
 
 const axios = require('axios');
 
@@ -18,7 +19,7 @@ export default function UserInfo({navigation}) {
   };
 
   const handleWebSocket = async () => {
-    var ws = new WebSocket('ws://192.168.1.86:8084', null, { headers: await get_auth_headers()});
+    var ws = new WebSocket(Config.SOCKET, null, { headers: await get_auth_headers()});
     ws.onopen = () => {
       console.log('connection open');
     };
