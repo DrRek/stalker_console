@@ -42,8 +42,7 @@ wss.on("connection", (ws, req) => {
         status,
         id: currentId,
       } = JSON.parse(data);
-
-      console.log(postData)
+      console.log("proxied response from client")
 
       delete headers["content-encoding"];
       delete headers["content-length"];

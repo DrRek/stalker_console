@@ -14,7 +14,6 @@ module.exports = {
             // Intercept before the request is sent
             phase: 'request'
         }, (request, response) => {
-            console.log(request.headers)
             request.hostname = "localhost"
             request.headers.host = "localhost"
             request.port = 8082
@@ -25,7 +24,6 @@ module.exports = {
             // Intercept before the request is sent
             phase: 'response'
         }, (request, response) => {
-            console.log(response)
             return response
         })
     

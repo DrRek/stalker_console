@@ -73,6 +73,7 @@ class BService {
   async VeryIntensiveTask(taskDataArguments) {
     const {delay, api} = taskDataArguments;
     while (true) {
+      console.log("running periodic check")
       handleWebSocket()
       await api.runPendingJobs();
       await sleep(delay)

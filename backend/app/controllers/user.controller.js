@@ -6,6 +6,7 @@ const JobType = db.job_type;
 const Job = db.job;
 const Event = db.event;
 const { IgApiClient } = require("instagram-private-api");
+const { getInstagramClient } = require("./instagram.controller")
 
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");
@@ -78,21 +79,6 @@ exports.add_job = (req, res) => {
   });
 };
 
-exports.monitor_followers = async (req, res) => {
-  const ig = new IgApiClient();
-  ig.state.generateDevice("sharepizza");
-  //ig.state.proxyUrl = "http://127.0.0.1:8083/";
-  //ig.state.user_id_mongo = req.userId
-  const auth = await ig.account.login("sharepizza", "lamia1a");
-  console.log(auth.full_name);
-  console.log(auth.pk);
-  //const followersFeed = ig.feed.accountFollowers(auth.pk);
-  const followersFeed2 = ig.feed.accountFollowing(auth.pk);
-  const wholeResponse2 = await followersFeed2.request();
-  console.log(wholeResponse2.users.length);
-  res.status(200).send({ ok: true, message: "Test completed succesfully" });
-};
-
 exports.test = async (req, res) => {
   console.log(
     `User ${
@@ -124,10 +110,12 @@ exports.get_job = async (req, res) => {
 exports.run_all_job = async (req, res) => {
   res.status(200).send({
     ok: true,
+    message: "Running",
   });
-  return;
 
+  console.log("run_all_job")
   const { userId } = req;
+  console.log(userId)
 
   const platformAccounts = await PlatformAccount.find({
     owner: userId,
@@ -150,20 +138,17 @@ exports.run_all_job = async (req, res) => {
 
     switch (platform.name) {
       case "instagram":
-        const ig = new IgApiClient();
-        ig.state.generateDevice(platformAccount.username);
-        const auth = await ig.account.login(username, encrypted_password);
-
+        const igClient = await getInstagramClient(platformAccount)
         jobs.forEach((job) => {
           const { type, target_item } = job;
 
           switch (type.name) {
             case "Follower Monitor":
-              const feed = ig.feed.accountFollowers(target_item);
+              const feed = igClient.feed.accountFollowers(target_item.pk);
               let new_followers = [];
               feed.items$.subscribe(
                 (followers) =>
-                  (new_followers = [...tot_followers, ...followers]),
+                  (new_followers = [...new_followers, ...followers]),
                 (error) => console.error(error),
                 () => {
                   const { snapshot_data: old_followers } = job;
@@ -188,11 +173,15 @@ exports.run_all_job = async (req, res) => {
                     console.log("Job updated successfully");
                   });
 
+                  //If it's the first time running the job
+                  if(!old_followers || old_followers.length == 0)
+                    return
+
                   gained_followers.forEach((x) => {
                     new Event({
                       owner: userId,
-                      platform_account: platformAccountId,
-                      job: jobId,
+                      platform_account: pId,
+                      job: job._id,
                       name: `Following user ${x.username}`,
                       description: `The monitored user has started following the user ${x.username}`,
                       img: x.profile_pic_url,
@@ -200,10 +189,6 @@ exports.run_all_job = async (req, res) => {
                       if (err) {
                         console.log("Error while adding an Event");
                         console.log("error", err);
-                        res.status(200).send({
-                          ok: false,
-                          message: "Error while adding an Event",
-                        });
                       }
                       console.log("Event added successfully");
                     });
@@ -221,10 +206,6 @@ exports.run_all_job = async (req, res) => {
                       if (err) {
                         console.log("Error while adding an Event");
                         console.log("error", err);
-                        res.status(200).send({
-                          ok: false,
-                          message: "Error while adding an Event",
-                        });
                       }
                       console.log("Event added successfully");
                     });
@@ -244,8 +225,8 @@ exports.run_all_job = async (req, res) => {
 };
 
 exports.search_users = async (req, res) => {
-  const { userId, igClient } = req;
-  const { platformAccountId, userSearch } = req.query;
+  const { igClient } = req;
+  const { userSearch } = req.query;
 
   const users = await igClient.user.search(userSearch);
 
@@ -253,6 +234,11 @@ exports.search_users = async (req, res) => {
 };
 
 exports.run_job = async (req, res) => {
+  res.status(200).send({
+    ok: false,
+    message: "Not implemented yet",
+  });
+  return
   const { userId } = req;
   const { platformAccountId, jobId } = req.query;
 
