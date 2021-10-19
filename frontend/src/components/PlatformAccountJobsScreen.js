@@ -38,7 +38,7 @@ export default function PlatformAccountJobsScreen({platformAccountId, navigation
               <Avatar source={require('../../resources/img/instagram-round.png')} />        
               <ListItem.Content>          
                 <ListItem.Title>{type.name}</ListItem.Title>          
-                <ListItem.Subtitle>on user: {target_item}</ListItem.Subtitle>        
+                <ListItem.Subtitle>on user: {target_item && target_item.username}</ListItem.Subtitle>        
               </ListItem.Content>
           </ListItem>
         }

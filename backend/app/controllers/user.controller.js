@@ -244,26 +244,10 @@ exports.run_all_job = async (req, res) => {
 };
 
 exports.search_users = async (req, res) => {
-  const { userId } = req;
+  const { userId, igClient } = req;
   const { platformAccountId, userSearch } = req.query;
 
-  const ig = new IgApiClient();
-
-  const platformAccount = await PlatformAccount.findOne({
-    owner: userId,
-    _id: platformAccountId,
-  });
-  ig.state.generateDevice(platformAccount.username);
-
-  ig.state.proxyUrl = "http://127.0.0.1:8083/";
-  ig.state.user_id_mongo = userId;
-
-  await ig.account.login(
-    platformAccount.username,
-    platformAccount.encrypted_password
-  );
-
-  const users = await ig.user.search(userSearch);
+  const users = await igClient.user.search(userSearch);
 
   res.status(200).send({ ok: true, data: users });
 };
