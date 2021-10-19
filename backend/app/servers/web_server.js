@@ -111,6 +111,18 @@ function initial() {
 
         console.log("added 'Follower Monitor' to job types collection");
       });
+
+      new JobType({
+        name: "Following Monitor",
+        description: "Check periodically if an users start or stop following another account",
+        platform: await Platform.findOne({name:"instagram"})
+      }).save(err => {
+        if (err) {
+          console.log("error", err);
+        }
+
+        console.log("added 'Following Monitor' to job types collection");
+      });
     }
   });
 }

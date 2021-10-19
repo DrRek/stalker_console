@@ -25,6 +25,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import Config from 'react-native-config';
 import {Icon} from 'react-native-elements';
+import TipProvider from 'react-native-tip'
 
 const axios = require('axios');
 
@@ -186,7 +187,7 @@ export default function App() {
             headers: await get_auth_headers(),
             data: {
               platformAccountId,
-              jobId
+              jobId,
             },
           });
           return response.data;
@@ -339,6 +340,9 @@ export default function App() {
             <Stack.Screen
               name="PlatformAccountTab"
               component={PlatformAccountTab}
+              options={{
+                title: 'Stalker Console',
+              }}
             />
             <Stack.Screen
               name="NewPlatformAccount"
@@ -348,6 +352,25 @@ export default function App() {
           </Stack.Navigator>
         )}
       </NavigationContainer>
+      <TipProvider
+        overlayOpacity={0.5}
+        titleStyle={{
+          fontWeight: 'bold',
+          fontSize: 18,
+          marginBottom: 10,
+        }}
+        bodyStyle={{
+          fontSize: 16,
+        }}
+        tipContainerStyle={{
+          padding: 20,
+          borderRadius: 20,
+          maxWidth: 350,
+          elevation: 5,
+        }}
+        prevNextTextStyle={{}}
+        prevNextButtonStyle={{}}
+      />
     </ApiContext.Provider>
   );
 }

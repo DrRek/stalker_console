@@ -81,7 +81,7 @@ exports.add_job = (req, res) => {
   });
 };
 
-exports.delete_job = (req, res) => {
+exports.delete_job = async (req, res) => {
   await Job.findOneAndUpdate({
     owner: req.userId,
     platform_account: req.body.platformAccountId,

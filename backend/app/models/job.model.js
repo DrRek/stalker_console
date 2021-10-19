@@ -19,7 +19,7 @@ const Job = mongoose.model(
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"
         },
-        active: Bolean
+        active: Boolean
     }, {
         timestamps: true
     })

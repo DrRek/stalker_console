@@ -1,25 +1,27 @@
-import React, {useRef, useState, useEffect, useCallback } from 'react';
+import React, {useRef, useState, useEffect, useCallback} from 'react';
 import {
-  AppState,
   StyleSheet,
   Text,
   View,
   Button,
-  TextInput,
-  Dimensions
+  Dimensions,
+  TouchableOpacity,
 } from 'react-native';
-import {Picker} from '@react-native-picker/picker';
 import {AutocompleteDropdown} from 'react-native-autocomplete-dropdown';
+import {FlatGrid} from 'react-native-super-grid';
+import {Icon} from 'react-native-elements';
+import {showTip, Tip} from 'react-native-tip';
 
 export default function JobAddScreen({navigation, route}) {
   const [jobTypes, setJobTypes] = React.useState([]);
-  const [jobTypeId, setJobTypeId] = React.useState(null);
+  const [selectedJobType, setSelectedJobType] = React.useState(null);
   const [targetUsersList, setTargetUsersList] = useState(null);
   const [targetUser, setTargetUser] = React.useState(null);
   const [loading, setLoading] = useState(false);
   const api = React.useContext(ApiContext);
   const {platformAccountId} = route.params;
-  const dropdownController = useRef(null)
+  const dropdownController = useRef(null);
+  const [_showTip, setShowTip] = React.useState(true);
 
   useEffect(() => {
     async function fetchJobTypes() {
@@ -30,6 +32,15 @@ export default function JobAddScreen({navigation, route}) {
     fetchJobTypes();
   }, []);
 
+  const fake_jobs = [
+    {
+      _id: 'fake',
+      name: 'More coming soon...',
+      description: 'More jobs are being developed and added every day.',
+      fake: true
+    },
+  ];
+
   const getTargetUsersList = useCallback(async q => {
     if (typeof q !== 'string' || q.length < 3) {
       setTargetUsersList(null);
@@ -38,26 +49,45 @@ export default function JobAddScreen({navigation, route}) {
     setLoading(true);
     const response = await api.searchPlatformAccountUsers(platformAccountId, q);
 
-    const suggestions = response.data.users.map((item) => ({
-        id: item.pk,
-        title: item.username,
-        value: item
-    }))
-    setTargetUsersList(suggestions)
-    setLoading(false)
+    const suggestions = response.data.users.map(item => ({
+      id: item.pk,
+      title: item.username,
+      value: item,
+    }));
+    setTargetUsersList(suggestions);
+    setLoading(false);
   }, []);
 
   return (
     <View style={styles.container}>
       <Text>Add here the information of the new job you want to create</Text>
-      <Picker
-        selectedValue={jobTypeId}
-        style={{height: 50, width: 150}}
-        onValueChange={(jobTypeValue, itemIndex) => setJobTypeId(jobTypeValue)}>
-        {jobTypes.map(({_id, name}) => (
-          <Picker.Item label={name} value={_id} key={_id} />
-        ))}
-      </Picker>
+      <FlatGrid
+        itemDimension={130}
+        data={[...jobTypes, ...fake_jobs]}
+        style={styles.gridView}
+        spacing={10}
+        renderItem={({item}) => (
+          <TouchableOpacity style={[styles.itemContainer, {borderColor: selectedJobType && selectedJobType._id == item._id ? "red" : "white"}]}
+          onPress={()=> !("fake" in item) && setSelectedJobType(item)}>
+            <Tip
+              id={item._id}
+              title="Description"
+              body={item.description}
+              showItemPulseAnimation
+              pulseColor="#ff8080"
+              active={false}>
+              <Icon
+                color="#555"
+                name="info"
+                onPress={() => {
+                  showTip(item._id);
+                }}
+              />
+            </Tip>
+            <Text style={styles.itemName}>{item.name}</Text>
+          </TouchableOpacity>
+        )}
+      />
       <AutocompleteDropdown
         controller={controller => {
           dropdownController.current = controller;
@@ -116,7 +146,7 @@ export default function JobAddScreen({navigation, route}) {
       <Button
         title="Add Job"
         onPress={async () => {
-          await api.addJob(platformAccountId, jobTypeId, targetUser);
+          await api.addJob(platformAccountId, selectedJobType._id, targetUser);
           navigation.goBack();
         }}
       />
@@ -127,7 +157,6 @@ export default function JobAddScreen({navigation, route}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#aaa',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -136,5 +165,27 @@ const styles = StyleSheet.create({
     margin: 12,
     borderWidth: 1,
     padding: 10,
+  },
+  gridView: {
+    flex: 1,
+    width: '95%',
+    borderRadius: 10,
+    backgroundColor: 'white',
+  },
+  itemContainer: {
+    justifyContent: 'space-between',
+    borderRadius: 5,
+    padding: 7,
+    height: 70,
+    backgroundColor: '#eee',
+    borderWidth: 1
+  },
+  itemName: {
+    fontSize: 16,
+    color: '#555',
+    fontWeight: '600',
+    alignSelf: 'flex-end',
+  },
+  icon: {
   },
 });
