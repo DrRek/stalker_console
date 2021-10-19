@@ -24,6 +24,7 @@ import ApiContext from './src/contexts/ApiContext';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import Config from 'react-native-config';
+import {Icon} from 'react-native-elements';
 
 const axios = require('axios');
 
@@ -169,7 +170,23 @@ export default function App() {
             url: `${Config.HOSTNAME}/api/platform_account/del`,
             headers: await get_auth_headers(),
             data: {
-              platformAccountId
+              platformAccountId,
+            },
+          });
+          return response.data;
+        } catch (e) {
+          console.log(e);
+        }
+      },
+      delJob: async (platformAccountId, jobId) => {
+        try {
+          const response = await axios({
+            method: 'post',
+            url: `${Config.HOSTNAME}/api/job/del`,
+            headers: await get_auth_headers(),
+            data: {
+              platformAccountId,
+              jobId
             },
           });
           return response.data;
@@ -350,6 +367,10 @@ function PlatformAccountTab({route, navigation}) {
             navigation={navigation}
           />
         )}
+        options={{
+          tabBarLabel: 'Jobs',
+          tabBarIcon: ({color}) => <Icon name="work" color={color} size={26} />,
+        }}
       />
       <Tab.Screen
         name="PlatformAccountActivy"
@@ -359,6 +380,12 @@ function PlatformAccountTab({route, navigation}) {
             navigation={navigation}
           />
         )}
+        options={{
+          tabBarLabel: 'Events',
+          tabBarIcon: ({color}) => (
+            <Icon name="assessment" color={color} size={26} />
+          ),
+        }}
       />
     </Tab.Navigator>
   );

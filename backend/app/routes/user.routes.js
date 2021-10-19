@@ -20,6 +20,8 @@ module.exports = function(app) {
 
   app.post("/api/job/add", [authJwt.verifyToken], controller.add_job)
 
+  app.post("/api/job/del", [authJwt.verifyToken], controller.delete_job)
+
   app.get("/api/platform_account/all", [authJwt.verifyToken], controller.get_platform_account)
 
   app.get("/api/job/all", [authJwt.verifyToken], controller.get_job)

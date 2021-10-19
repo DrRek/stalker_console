@@ -69,6 +69,7 @@ exports.add_job = (req, res) => {
     type: req.body.jobType,
     platform_account: req.body.platformAccountId,
     owner: req.userId,
+    active: true
   }).save((err) => {
     if (err) {
       console.log("Error while adding job");
@@ -77,6 +78,20 @@ exports.add_job = (req, res) => {
     }
     console.log("Job added successfully");
     res.status(200).send({ ok: true, message: "Job added successfully" });
+  });
+};
+
+exports.delete_job = (req, res) => {
+  await Job.findOneAndUpdate({
+    owner: req.userId,
+    platform_account: req.body.platformAccountId,
+    _id: req.body.platformAccountId
+  }, {
+    active: false
+  });
+  res.status(200).send({
+    ok: true,
+    message: "Job Deleted",
   });
 };
 
