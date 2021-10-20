@@ -1,0 +1,6 @@
+[submodule "custom_libraries/instagram-private-api"]
+	path = custom_libraries/instagram-private-api
+	url = git@github.com:DrRek/instagram-private-api.git
+[submodule "custom_libraries/web-sniffer"]
+	path = custom_libraries/web-sniffer
+	url = git@github.com:DrRek/web-sniffer.git
