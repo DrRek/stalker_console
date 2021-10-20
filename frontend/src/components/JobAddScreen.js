@@ -139,6 +139,7 @@ export default function JobAddScreen({navigation, route}) {
               autoCapitalize: 'none',
               style: {
                 backgroundColor: 'transparent',
+                color: "black"
               },
             }}
             rightButtonsContainerStyle={{

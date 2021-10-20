@@ -6,7 +6,9 @@ const JobType = db.job_type;
 const Job = db.job;
 const Event = db.event;
 const { IgApiClient } = require("instagram-private-api");
-const { getInstagramClient } = require("./instagram.controller")
+const { getInstagramClient } = require("./instagram.controller");
+const differenceBy = require("lodash.differenceby");
+const uniqueBy = require("lodash.uniqby");
 
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");
@@ -46,7 +48,7 @@ exports.add_platform_account = (req, res) => {
     encrypted_password: req.body.password,
     owner: req.userId,
     platform: req.body.platformId,
-    active: true
+    active: true,
   }).save((err) => {
     if (err) {
       console.log("Error while adding platform account");
@@ -69,7 +71,7 @@ exports.add_job = (req, res) => {
     type: req.body.jobType,
     platform_account: req.body.platformAccountId,
     owner: req.userId,
-    active: true
+    active: true,
   }).save((err) => {
     if (err) {
       console.log("Error while adding job");
@@ -82,13 +84,16 @@ exports.add_job = (req, res) => {
 };
 
 exports.delete_job = async (req, res) => {
-  await Job.findOneAndUpdate({
-    owner: req.userId,
-    platform_account: req.body.platformAccountId,
-    _id: req.body.platformAccountId
-  }, {
-    active: false
-  });
+  await Job.findOneAndUpdate(
+    {
+      owner: req.userId,
+      platform_account: req.body.platformAccountId,
+      _id: req.body.jobId,
+    },
+    {
+      active: false,
+    }
+  );
   res.status(200).send({
     ok: true,
     message: "Job Deleted",
@@ -109,7 +114,9 @@ exports.get_platform_account = async (req, res) => {
   res
     .status(200)
     .send(
-      await PlatformAccount.find({ owner: req.userId, active: true }).populate("platform")
+      await PlatformAccount.find({ owner: req.userId, active: true }).populate(
+        "platform"
+      )
     );
 };
 
@@ -119,21 +126,72 @@ exports.get_job = async (req, res) => {
     await Job.find({
       owner: req.userId,
       platform_account: req.query.platformAccountId,
+      active: true,
     }).populate("type")
   );
 };
 
 exports.delete_platform_account = async (req, res) => {
-  await PlatformAccount.findOneAndUpdate({
-    owner: req.userId,
-    _id: req.body.platformAccountId
-  }, {
-    active: false
-  });
+  await PlatformAccount.findOneAndUpdate(
+    {
+      owner: req.userId,
+      _id: req.body.platformAccountId,
+    },
+    {
+      active: false,
+    }
+  );
   res.status(200).send({
     ok: true,
     message: "Platform Account Deleted",
   });
+};
+
+const repeater = async (callback, discriminator, n = 3) => {
+  let iterator = 1;
+  const times = 3;
+  let results = [];
+
+  do {
+    const rawData = await callback();
+    //rawData.forEach(i => i.pk==974687150 && console.log("sara ci sta"))
+    results = [...results, ...rawData];
+    iterator++;
+  } while (iterator <= times);
+
+  return uniqueBy(results, discriminator);
+};
+
+const itemsIterator = async (feed) => {
+  const results = [];
+  do {
+    const currentPage = await feed.items();
+    results.push(...currentPage);
+  } while (feed.isMoreAvailable());
+  return results;
+};
+
+const get_instagram_followers = async (ig, pk) => {
+  return repeater(async () => {
+    const followers_feed = ig.feed.accountFollowers(pk);
+    return itemsIterator(followers_feed);
+  }, "pk");
+};
+
+const get_instagram_following = async (ig, pk) => {
+  return repeater(async () => {
+    const followers_feed = ig.feed.accountFollowing(pk);
+    return itemsIterator(followers_feed);
+  }, "pk");
+};
+
+exports.get_events = async (req, res) => {
+  res.status(200).send(
+    await Event.find({
+      owner: req.userId,
+      platform_account: req.query.platformAccountId
+    }).sort({ createdAt: "desc"}).populate("job")
+  );
 }
 
 exports.run_all_job = async (req, res) => {
@@ -142,13 +200,13 @@ exports.run_all_job = async (req, res) => {
     message: "Running",
   });
 
-  console.log("run_all_job")
+  console.log("run_all_job");
   const { userId } = req;
-  console.log(userId)
+  console.log(userId);
 
   const platformAccounts = await PlatformAccount.find({
     owner: userId,
-    active: true
+    active: true,
   }).populate("platform");
 
   platformAccounts.forEach(async (platformAccount) => {
@@ -162,89 +220,137 @@ exports.run_all_job = async (req, res) => {
     const jobs = await Job.find({
       owner: userId,
       platform: pId,
+      active: true,
     }).populate("type");
 
     if (jobs.length == 0) return;
 
     switch (platform.name) {
       case "instagram":
-        const igClient = await getInstagramClient(platformAccount)
-        jobs.forEach((job) => {
+        const igClient = await getInstagramClient(platformAccount);
+        jobs.forEach(async (job) => {
           const { type, target_item } = job;
 
-          switch (type.name) {
-            case "Follower Monitor":
-              const feed = igClient.feed.accountFollowers(target_item.pk);
-              let new_followers = [];
-              feed.items$.subscribe(
-                (followers) =>
-                  (new_followers = [...new_followers, ...followers]),
-                (error) => console.error(error),
-                () => {
-                  const { snapshot_data: old_followers } = job;
+          if (type.name == "Following Monitor") {
+            const new_data = await get_instagram_following(
+              igClient,
+              target_item.pk
+            );
+            const { snapshot_data: old_data } = job;
 
-                  const gained_followers = new_followers.filter(
-                    (x) => !old_followers.some((y) => y.pk === x.pk)
-                  );
-                  const loosed_followers = old_followers.filter(
-                    (x) => !new_followers.some((y) => y.pk === x.pk)
-                  );
+            const gained_data = differenceBy(new_data, old_data, "pk");
+            const loosed_data = differenceBy(old_data, new_data, "pk");
 
-                  job.snapshot_data = new_followers;
-                  job.save((err) => {
-                    if (err) {
-                      console.log("Error while updating job");
-                      console.log("error", err);
-                      res.status(200).send({
-                        ok: false,
-                        message: "Error while updating a job",
-                      });
-                    }
-                    console.log("Job updated successfully");
-                  });
+            job.snapshot_data = new_data;
+            job.save((err) => {
+              if (err) {
+                console.log("Error while updating job");
+                console.log("error", err);
+                res.status(200).send({
+                  ok: false,
+                  message: "Error while updating a job",
+                });
+              }
+              console.log("Job updated successfully");
+            });
 
-                  //If it's the first time running the job
-                  if(!old_followers || old_followers.length == 0)
-                    return
+            //If it's the first time running the job
+            if (!old_data || old_data.length == 0) return;
 
-                  gained_followers.forEach((x) => {
-                    new Event({
-                      owner: userId,
-                      platform_account: pId,
-                      job: job._id,
-                      name: `Following user ${x.username}`,
-                      description: `The monitored user has started following the user ${x.username}`,
-                      img: x.profile_pic_url,
-                    }).save((err) => {
-                      if (err) {
-                        console.log("Error while adding an Event");
-                        console.log("error", err);
-                      }
-                      console.log("Event added successfully");
-                    });
-                  });
-
-                  loosed_followers.forEach((x) => {
-                    new Event({
-                      owner: userId,
-                      platform_account: pId,
-                      job: job._id,
-                      name: `Unfollowed user ${x.username}`,
-                      description: `The monitored user has stoped following the user ${x.username}`,
-                      img: x.profile_pic_url,
-                    }).save((err) => {
-                      if (err) {
-                        console.log("Error while adding an Event");
-                        console.log("error", err);
-                      }
-                      console.log("Event added successfully");
-                    });
-                  });
+            gained_data.forEach((x) => {
+              new Event({
+                owner: userId,
+                platform_account: pId,
+                job: job._id,
+                name: `Following ${x.username}`,
+                description: `The monitored user has started following ${x.username}`,
+                img: x.profile_pic_url,
+              }).save((err) => {
+                if (err) {
+                  console.log("Error while adding an Event");
+                  console.log("error", err);
                 }
-              );
-              break;
-            default:
-              console.err(`JobType ${type.name} not yet fully implemented`);
+                console.log("Event added successfully");
+              });
+            });
+
+            loosed_data.forEach((x) => {
+              new Event({
+                owner: userId,
+                platform_account: pId,
+                job: job._id,
+                name: `Unfollowing ${x.username}`,
+                description: `The monitored user has stoped following ${x.username}`,
+                img: x.profile_pic_url,
+              }).save((err) => {
+                if (err) {
+                  console.log("Error while adding an Event");
+                  console.log("error", err);
+                }
+                console.log("Event added successfully");
+              });
+            });
+          } else if (type.name == "Follower Monitor") {
+            const new_data = await get_instagram_followers(
+              igClient,
+              target_item.pk
+            );
+            const { snapshot_data: old_data } = job;
+
+            const gained_data = differenceBy(new_data, old_data, "pk");
+            const loosed_data = differenceBy(old_data, new_data, "pk");
+
+            job.snapshot_data = new_data;
+            job.save((err) => {
+              if (err) {
+                console.log("Error while updating job");
+                console.log("error", err);
+                res.status(200).send({
+                  ok: false,
+                  message: "Error while updating a job",
+                });
+              }
+              console.log("Job updated successfully");
+            });
+
+            //If it's the first time running the job
+            if (!old_data || old_data.length == 0) return;
+
+            gained_data.forEach((x) => {
+              new Event({
+                owner: userId,
+                platform_account: pId,
+                job: job._id,
+                name: `Followed by ${x.username}`,
+                description: `The monitored user has been followed by ${x.username}`,
+                img: x.profile_pic_url,
+              }).save((err) => {
+                if (err) {
+                  console.log("Error while adding an Event");
+                  console.log("error", err);
+                }
+                console.log("Event added successfully");
+              });
+            });
+
+            loosed_data.forEach((x) => {
+              new Event({
+                owner: userId,
+                platform_account: pId,
+                job: job._id,
+                name: `Unfollowed by ${x.username}`,
+                description: `The monitored user has been unfollowed by ${x.username}`,
+                img: x.profile_pic_url,
+              }).save((err) => {
+                if (err) {
+                  console.log("Error while adding an Event");
+                  console.log("error", err);
+                }
+                console.log("Event added successfully");
+              });
+            });
+          } else {
+            console.err(`JobType ${type.name} not yet fully implemented`);
           }
         });
         break;
@@ -268,5 +374,5 @@ exports.run_job = async (req, res) => {
     ok: false,
     message: "Not implemented yet",
   });
-  return
+  return;
 };

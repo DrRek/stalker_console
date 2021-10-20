@@ -14,6 +14,8 @@ module.exports = function(app) {
 
   app.get("/api/jobs_types/all", controller.get_job_types)
 
+  app.get("/api/event/all", [authJwt.verifyToken], controller.get_events)
+
   app.post("/api/platform_account/add", [authJwt.verifyToken], controller.add_platform_account)
 
   app.post("/api/platform_account/del", [authJwt.verifyToken], controller.delete_platform_account)

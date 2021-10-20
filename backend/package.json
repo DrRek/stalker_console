@@ -14,6 +14,8 @@
     "express": "^4.17.1",
     "instagram-private-api": "file:../custom_libraries/instagram-private-api",
     "jsonwebtoken": "^8.5.1",
+    "lodash.differenceby": "^4.8.0",
+    "lodash.uniqby": "^4.7.0",
     "mongoose": "^6.0.10",
     "uuid": "^8.3.2",
     "web-proxy-sniffer": "file:../custom_libraries/web-sniffer",

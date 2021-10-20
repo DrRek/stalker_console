@@ -8,7 +8,7 @@ import {Text, Button} from 'react-native-elements';
 const axios = require('axios');
 
 export default function UserInfo({navigation}) {
-  const {signOut} = React.useContext(ApiContext);
+  const {signOut, runPendingJobs } = React.useContext(ApiContext);
   const [user, setUser] = React.useState(null);
 
   useEffect(() => {
@@ -38,9 +38,16 @@ export default function UserInfo({navigation}) {
         </View>
       </View>
       <Button
+        title="Run all jobs"
+        icon={{name: 'directions-run', color: 'white'}}
+        onPress={runPendingJobs}
+        buttonStyle={styles.button}
+      />
+      <Button
         title="Logout"
         icon={{name: 'logout', color: 'white'}}
         onPress={signOut}
+        buttonStyle={styles.button}
       />
     </View>
   );
@@ -67,7 +74,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   button: {
-    width: 100,
+    minWidth: 300,
     height: 50,
+    margin: 20,
   },
 });

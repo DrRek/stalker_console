@@ -20,7 +20,7 @@ const Event = mongoose.model(
         name: String,
         description: String,
         img: String,
-    }, {timestamp: true})
+    }, {timestamps: true})
 );
 
 module.exports = Event;
