@@ -262,8 +262,8 @@ exports.run_all_job = async (req, res) => {
                 owner: userId,
                 platform_account: pId,
                 job: job._id,
-                name: `Following ${x.username}`,
-                description: `The monitored user has started following ${x.username}`,
+                name: `Following`,
+                description: `${job.target_item.username} has started following ${x.username}`,
                 img: x.profile_pic_url,
               }).save((err) => {
                 if (err) {
@@ -279,8 +279,8 @@ exports.run_all_job = async (req, res) => {
                 owner: userId,
                 platform_account: pId,
                 job: job._id,
-                name: `Unfollowing ${x.username}`,
-                description: `The monitored user has stoped following ${x.username}`,
+                name: `Unfollowing`,
+                description: `${job.target_item.username} has stoped following ${x.username}`,
                 img: x.profile_pic_url,
               }).save((err) => {
                 if (err) {
@@ -321,8 +321,8 @@ exports.run_all_job = async (req, res) => {
                 owner: userId,
                 platform_account: pId,
                 job: job._id,
-                name: `Followed by ${x.username}`,
-                description: `The monitored user has been followed by ${x.username}`,
+                name: `Followed`,
+                description: `${job.target_item.username} has been followed by ${x.username}`,
                 img: x.profile_pic_url,
               }).save((err) => {
                 if (err) {
@@ -338,8 +338,8 @@ exports.run_all_job = async (req, res) => {
                 owner: userId,
                 platform_account: pId,
                 job: job._id,
-                name: `Unfollowed by ${x.username}`,
-                description: `The monitored user has been unfollowed by ${x.username}`,
+                name: `Unfollowed`,
+                description: `${job.target_item.username} has been unfollowed by ${x.username}`,
                 img: x.profile_pic_url,
               }).save((err) => {
                 if (err) {

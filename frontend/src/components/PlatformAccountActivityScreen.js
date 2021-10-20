@@ -40,7 +40,7 @@ export default function PlatformAccountActivityScreen({
         style={styles.scrollView}
         data={events}
         keyExtractor={item => item._id}
-        renderItem={({item: {_id, job, name, description, img}}) => (
+        renderItem={({item: {_id, job, name, description, img, createdAt}}) => (
           <ListItem.Swipeable
             key={_id}
             bottomDivider
@@ -65,9 +65,9 @@ export default function PlatformAccountActivityScreen({
               />
             </Avatar>
             <ListItem.Content>
-              <ListItem.Title>{name}</ListItem.Title>
+              <ListItem.Title>{description}</ListItem.Title>
               <ListItem.Subtitle>
-                {description}
+                {`Discoved at ${createdAt}`}
               </ListItem.Subtitle>
             </ListItem.Content>
           </ListItem.Swipeable>

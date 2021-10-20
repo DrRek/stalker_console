@@ -127,7 +127,7 @@ export default function JobAddScreen({navigation, route}) {
               item && setTargetUser(item.value);
             }}
             debounce={600}
-            suggestionsListMaxHeight={Dimensions.get('window').height * 0.4}
+            suggestionsListMaxHeight={Dimensions.get('window').height * 0.3}
             // onClear={onClearPress}
             //  onSubmit={(e) => onSubmitSearch(e.nativeEvent.text)}
             // onOpenSuggestionsList={onOpenSuggestionsList}
