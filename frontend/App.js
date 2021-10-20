@@ -322,8 +322,24 @@ export default function App() {
       <NavigationContainer>
         {!state.user ? (
           <Tab.Navigator>
-            <Tab.Screen name="Login" component={LoginScreen} />
-            <Tab.Screen name="Register" component={RegisterScreen} />
+            <Tab.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{
+                tabBarIcon: ({color}) => (
+                  <Icon name="login" color={color} size={26} />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name="Register"
+              component={RegisterScreen}
+              options={{
+                tabBarIcon: ({color}) => (
+                  <Icon name="edit" color={color} size={26} />
+                ),
+              }}
+            />
           </Tab.Navigator>
         ) : (
           <Stack.Navigator>
