@@ -3,13 +3,12 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
 import {AutocompleteDropdown} from 'react-native-autocomplete-dropdown';
 import {FlatGrid} from 'react-native-super-grid';
-import {Icon} from 'react-native-elements';
+import {Icon, Button} from 'react-native-elements';
 import {showTip, Tip} from 'react-native-tip';
 
 export default function JobAddScreen({navigation, route}) {
@@ -37,7 +36,17 @@ export default function JobAddScreen({navigation, route}) {
       _id: 'fake',
       name: 'More coming soon...',
       description: 'More jobs are being developed and added every day.',
-      fake: true
+      fake: true,
+    },{
+      _id: 'fake',
+      name: 'More coming soon...',
+      description: 'More jobs are being developed and added every day.',
+      fake: true,
+    },{
+      _id: 'fake',
+      name: 'More coming soon...',
+      description: 'More jobs are being developed and added every day.',
+      fake: true,
     },
   ];
 
@@ -58,17 +67,32 @@ export default function JobAddScreen({navigation, route}) {
     setLoading(false);
   }, []);
 
+  const addJob = async () => {
+    await api.addJob(platformAccountId, selectedJobType._id, targetUser);
+    navigation.goBack();
+  }
+
   return (
     <View style={styles.container}>
-      <Text>Add here the information of the new job you want to create</Text>
-      <FlatGrid
+      <View style={[styles.dropdownContainer, {maxHeight: 200}]}>
+        <Text style={styles.dropdownLabel}>Select the job</Text>
+        <FlatGrid
         itemDimension={130}
         data={[...jobTypes, ...fake_jobs]}
         style={styles.gridView}
         spacing={10}
         renderItem={({item}) => (
-          <TouchableOpacity style={[styles.itemContainer, {borderColor: selectedJobType && selectedJobType._id == item._id ? "red" : "white"}]}
-          onPress={()=> !("fake" in item) && setSelectedJobType(item)}>
+          <TouchableOpacity
+            style={[
+              styles.itemContainer,
+              {
+                borderColor:
+                  selectedJobType && selectedJobType._id == item._id
+                    ? 'green'
+                    : 'white',
+              },
+            ]}
+            onPress={() => !('fake' in item) && setSelectedJobType(item)}>
             <Tip
               id={item._id}
               title="Description"
@@ -88,67 +112,70 @@ export default function JobAddScreen({navigation, route}) {
           </TouchableOpacity>
         )}
       />
-      <AutocompleteDropdown
-        controller={controller => {
-          dropdownController.current = controller;
-        }}
-        dataSet={targetUsersList}
-        onChangeText={getTargetUsersList}
-        onSelectItem={item => {
-          item && setTargetUser(item.value);
-        }}
-        debounce={600}
-        suggestionsListMaxHeight={Dimensions.get('window').height * 0.4}
-        // onClear={onClearPress}
-        //  onSubmit={(e) => onSubmitSearch(e.nativeEvent.text)}
-        // onOpenSuggestionsList={onOpenSuggestionsList}
-        loading={loading}
-        useFilter={false} // prevent rerender twice
-        textInputProps={{
-          placeholder: 'Type 3+ letters',
-          autoCorrect: false,
-          autoCapitalize: 'none',
-          style: {
-            borderRadius: 25,
-            backgroundColor: '#383b42',
-            color: '#fff',
-            paddingLeft: 18,
-          },
-        }}
-        rightButtonsContainerStyle={{
-          borderRadius: 25,
-          right: 8,
-          height: 30,
-          top: 10,
-          alignSelfs: 'center',
-          backgroundColor: '#383b42',
-        }}
-        inputContainerStyle={{
-          backgroundColor: 'transparent',
-        }}
-        suggestionsListContainerStyle={{
-          backgroundColor: '#383b42',
-        }}
-        containerStyle={{flexGrow: 1, flexShrink: 1}}
-        renderItem={(item, text) => (
-          <Text style={{color: '#fff', padding: 15}}>{item.title}</Text>
-        )}
-        /*ChevronIconComponent={
+      </View>
+      <View style={styles.dropdownContainer}>
+        <Text style={styles.dropdownLabel}>Select the user</Text>
+        <View style={styles.dropdownBottomContainer}>
+          <Icon name="person" size={24} color="black" />
+          <AutocompleteDropdown
+            controller={controller => {
+              dropdownController.current = controller;
+            }}
+            dataSet={targetUsersList}
+            onChangeText={getTargetUsersList}
+            onSelectItem={item => {
+              item && setTargetUser(item.value);
+            }}
+            debounce={600}
+            suggestionsListMaxHeight={Dimensions.get('window').height * 0.4}
+            // onClear={onClearPress}
+            //  onSubmit={(e) => onSubmitSearch(e.nativeEvent.text)}
+            // onOpenSuggestionsList={onOpenSuggestionsList}
+            loading={loading}
+            useFilter={false} // prevent rerender twice
+            textInputProps={{
+              placeholder: 'Type 3+ letters',
+              autoCorrect: false,
+              autoCapitalize: 'none',
+              style: {
+                backgroundColor: 'transparent',
+              },
+            }}
+            rightButtonsContainerStyle={{
+              borderRadius: 25,
+              right: 8,
+              height: 30,
+              top: 10,
+              alignSelfs: 'center',
+              backgroundColor: 'transparent',
+            }}
+            inputContainerStyle={{
+              backgroundColor: 'transparent',
+              borderRadius: 0,
+            }}
+            suggestionsListContainerStyle={{
+              backgroundColor: '#383b42',
+            }}
+            containerStyle={styles.inputDropdown}
+            renderItem={(item, text) => (
+              <Text style={{color: '#fff', padding: 15}}>{item.title}</Text>
+            )}
+            /*ChevronIconComponent={
           <Feather name="x-circle" size={18} color="#fff" />
         }
         ClearIconComponent={
           <Feather name="chevron-down" size={20} color="#fff" />
         }*/
-        inputHeight={50}
-        showChevron={false}
-        //  showClear={false}
-      />
+            inputHeight={50}
+            showChevron={false}
+            //  showClear={false}
+          />
+        </View>
+      </View>
       <Button
         title="Add Job"
-        onPress={async () => {
-          await api.addJob(platformAccountId, selectedJobType._id, targetUser);
-          navigation.goBack();
-        }}
+        onPress={addJob}
+        icon={<Icon name="add" size={15} color="white" />}
       />
     </View>
   );
@@ -159,6 +186,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'white',
   },
   input: {
     height: 40,
@@ -178,7 +206,7 @@ const styles = StyleSheet.create({
     padding: 7,
     height: 70,
     backgroundColor: '#eee',
-    borderWidth: 1
+    borderWidth: 1,
   },
   itemName: {
     fontSize: 16,
@@ -186,6 +214,38 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     alignSelf: 'flex-end',
   },
-  icon: {
+  icon: {},
+  dropdownContainer: {
+    flex: 1,
+    color: 'black',
+    width: '95%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#86939e',
+    marginBottom: 25,
+    maxHeight: 75,
+  },
+  dropdownBottomContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    height: 100,
+  },
+  dropdownLabel: {
+    fontWeight: 'bold',
+    color: '#86939e',
+    fontFamily: 'sans-serif',
+    fontSize: 16,
+  },
+  inputDropdown: {
+    flex: 1,
+    color: 'black',
+    placeholderTextColor: '#86939e',
+    fontSize: 18,
+    minHeight: 40,
+    flexGrow: 1,
+    flexShrink: 1,
+    borderRadius: 0,
   },
 });

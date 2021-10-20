@@ -25,7 +25,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import Config from 'react-native-config';
 import {Icon} from 'react-native-elements';
-import TipProvider from 'react-native-tip'
+import TipProvider from 'react-native-tip';
 
 const axios = require('axios');
 
@@ -351,7 +351,13 @@ export default function App() {
                 title: 'Add your account',
               }}
             />
-            <Stack.Screen name="NewJob" component={JobAddScreen} />
+            <Stack.Screen
+              name="NewJob"
+              component={JobAddScreen}
+              options={{
+                title: 'Add a new account',
+              }}
+            />
           </Stack.Navigator>
         )}
       </NavigationContainer>
