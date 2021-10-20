@@ -1,5 +1,6 @@
-import React, { useRef, useState, useEffect } from "react";
-import { AppState, StyleSheet, Text, View, Button, TextInput } from "react-native";
+import React, { useRef, useState } from "react";
+import { StyleSheet, View, Button } from "react-native";
+import {Input, Icon} from 'react-native-elements';
 import ApiContext from "../contexts/ApiContext";
 
 export default function LoginScreen() {
@@ -14,24 +15,26 @@ export default function LoginScreen() {
   const passwordRef = useRef();
   return (   
     <View style={styles.container}>
-      <Text>Home Screen</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={setUsername}
-        value={username}
+      <Input
+        label="Insert here the username"
         placeholder="Username or Email"
+        leftIcon={<Icon name="person" size={24} color="black" />}
+        onChangeText={setUsername}
         autoCapitalize='none'
         autoCorrect={false}
         autoCompleteType='email'
         blurOnSubmit={false}
         onSubmitEditing={() => passwordRef.current.focus()}
       />
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        value={password}
-        secureTextEntry={true}
+      <Input
+        label="Insert here the password"
         placeholder="Password"
+        leftIcon={<Icon name="lock" size={24} color="black" />}
+        onChangeText={setPassword}
+        autoCapitalize='none'
+        autoCorrect={false}
+        autoCompleteType='email'
+        secureTextEntry={true}
         ref={passwordRef}
         blurOnSubmit={false}
         onSubmitEditing={submitPressed}
@@ -47,7 +50,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#aaa',
     alignItems: 'center',
     justifyContent: 'center',
   },
