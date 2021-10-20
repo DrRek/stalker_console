@@ -347,6 +347,9 @@ export default function App() {
             <Stack.Screen
               name="NewPlatformAccount"
               component={PlatformAccountAddScreen}
+              options={{
+                title: 'Add your account',
+              }}
             />
             <Stack.Screen name="NewJob" component={JobAddScreen} />
           </Stack.Navigator>
